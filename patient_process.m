@@ -11,8 +11,10 @@ time_ratio = 1;
 time_convert = 30; % convert month to day
 X = [];
 y = [];
-%timesize = pat_info.numScan-1; % last scan for prediction
-timesize = pat_info.numScan-2; % last scan for prediction
+X_test = [];
+y_test = [];
+timesize = pat_info.numScan-1; % last scan for prediction
+%timesize = pat_info.numScan-2; % last scan for prediction
 for i=1:timesize
     
     file_name = ['./Patient_Data/HPCC_data/'...
@@ -43,10 +45,18 @@ for i=1:timesize
         index = randperm(size(data.on_surface,1));
         X_temp = data.on_surface(index(1:option.cutoff),1:3);
         y_temp = data.on_surface(index(1:option.cutoff),end);
-        %time_temp = i*ones(size(X_temp,1),1);
         time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
-        X = [X;[time_temp X_temp]];
-        y = [y;y_temp];
+        % --- Update X and y
+        if (i~=timesize)
+            X = [X;[time_temp X_temp]];
+            %X = [X;[X_temp time_temp]];
+            y = [y;y_temp];
+        end
+        % --- Update X_test y_test
+        if (1)
+            X_test = [X_test;[time_temp X_temp]];
+            y_test = [y_test;y_temp];
+        end
     else
         % --- scale radii of inner data to be \in [-1,0]
         min_inner = min(data.inner_line(:,end));
@@ -60,42 +70,23 @@ for i=1:timesize
         y_temp = data.on_surface(index(1:option.cutoff),end);
         X_temp = [X_temp;data.inner_line(:,1:3)];
         y_temp = [y_temp;inner_temp];
-        y = [y;y_temp];
-        %time_temp = i*ones(size(X_temp,1),1);
         time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
-        X = [X;[time_temp X_temp]];
+        
+        % --- Update X and y
+        if (i~=timesize)
+            X = [X;[time_temp X_temp]];
+            %X = [X;[X_temp time_temp]];
+            y = [y;y_temp];
+        end
+        % --- Update X_test y_test
+        if (1)
+            X_test = [X_test;[time_temp X_temp]];
+            y_test = [y_test;y_temp];
+        end
     end
-    if (i==timesize)
-        S_offset = data.on_surface(index(1:option.cutoff),1:3);
-    end
-end
-
-%--- Load the validation scan to the train scan for prediction
-file_name = ['./Patient_Data/HPCC_data/'...
-    pat_info.name num2str(timesize+1) '_inner'];
-load(file_name)
-if (option.pts_mode==0)
-    index = randperm(size(data.on_surface,1));
-    X_temp = data.on_surface(index(1:option.cutoff),1:3);
-    y_temp = data.on_surface(index(1:option.cutoff),end);
-    %time_temp = (timesize+1)*ones(size(X_temp,1),1);
-    time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
-    
-    X_test = [X;[time_temp X_temp]];
-    y_test = [y;y_temp];
-else
-    inner_temp = (data.inner_line(:,end)-max_inner)/(max_inner-min_inner);
-    inner_temp = inner_temp*option.edgeLimit;
-    index = randperm(size(data.on_surface,1));
-    X_temp = data.on_surface(index(1:option.cutoff),1:3);
-    y_temp = data.on_surface(index(1:option.cutoff),end);
-    X_temp = [X_temp;data.inner_line(:,1:3)];
-    y_temp = [y_temp;inner_temp];
-    
-    y_test = [y;y_temp];
-    %time_temp = (timesize+1)*ones(size(X_temp,1),1);
-    time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
-    X_test = [X;[time_temp X_temp]];
+%     if (i==timesize)
+%         S_offset = data.on_surface(index(1:option.cutoff),1:3);
+%     end
 end
 
 clear data
@@ -133,10 +124,16 @@ meanfunc = @meanConst;
 hyp.mean = option.edgeLimit;
 
 %hyp.cov(1) = log(80);   % bandwidth of time
+
 hyp.cov(1) = log(pat_info.band_t);   % bandwidth of time
 hyp.cov(2) = log(5);   % bandwidth of x
 hyp.cov(3) = log(5);   % bandwidth of y
 hyp.cov(4) = log(10);  % bandwidth of z
+
+% hyp.cov(1) = log(5);  % bandwidth of x
+% hyp.cov(2) = log(5);   % bandwidth of y
+% hyp.cov(3) = log(10);   % bandwidth of z
+% hyp.cov(4) = log(pat_info.band_t);   % bandwidth of time
 
 hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
@@ -154,8 +151,8 @@ file_name = ['./Patient_Data/HPCC_data/'...
     '_inner'];
 load(file_name);
 
-%Grid_train = [(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
 Grid_train = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
+%Grid_train = [S_temp time_convert*data.time_stamp*ones(size(S_temp,1),1)];
 [est_train, ~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X, y, Grid_train);
 
 index = randperm(size(data.on_surface,1));
@@ -186,8 +183,9 @@ load(file_name);
 %%                      Predict the test scan
 % --- Create spatio-temporal grid for prediction at t = last scan
 fprintf('\nPredicting ...\n');
-%Grid_test = [pat_info.numScan*ones(size(S_temp,1),1) S_temp];
+
 Grid_test = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
+%Grid_test = [S_temp time_convert*data.time_stamp*ones(size(S_temp,1),1)];
 [est_test,~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
 
 S_test_est = [];
