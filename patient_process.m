@@ -8,6 +8,7 @@ min_ = [1000 1000 1000];
 %time_ratio = exp((pat_info.numScan-1)/(pat_info.numScan-2))/...
 %                              exp((pat_info.numScan)/(pat_info.numScan-1));
 time_ratio = 1;
+time_convert = 30; % convert month to day
 X = [];
 y = [];
 %timesize = pat_info.numScan-1; % last scan for prediction
@@ -43,7 +44,7 @@ for i=1:timesize
         X_temp = data.on_surface(index(1:option.cutoff),1:3);
         y_temp = data.on_surface(index(1:option.cutoff),end);
         %time_temp = i*ones(size(X_temp,1),1);
-        time_temp = data.time_stamp*ones(size(X_temp,1),1);
+        time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
         X = [X;[time_temp X_temp]];
         y = [y;y_temp];
     else
@@ -61,7 +62,7 @@ for i=1:timesize
         y_temp = [y_temp;inner_temp];
         y = [y;y_temp];
         %time_temp = i*ones(size(X_temp,1),1);
-        time_temp = data.time_stamp*ones(size(X_temp,1),1);
+        time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
         X = [X;[time_temp X_temp]];
     end
     if (i==timesize)
@@ -78,7 +79,7 @@ if (option.pts_mode==0)
     X_temp = data.on_surface(index(1:option.cutoff),1:3);
     y_temp = data.on_surface(index(1:option.cutoff),end);
     %time_temp = (timesize+1)*ones(size(X_temp,1),1);
-    time_temp = data.time_stamp*ones(size(X_temp,1),1);
+    time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
     
     X_test = [X;[time_temp X_temp]];
     y_test = [y;y_temp];
@@ -93,7 +94,7 @@ else
     
     y_test = [y;y_temp];
     %time_temp = (timesize+1)*ones(size(X_temp,1),1);
-    time_temp = data.time_stamp*ones(size(X_temp,1),1);
+    time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
     X_test = [X;[time_temp X_temp]];
 end
 
@@ -141,7 +142,7 @@ hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
-hyp = minimize(hyp, @gp, -8, @infExact, meanfunc, covfunc, likfunc, X_test, y_test);
+hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_test, y_test);
 % exp(hyp.cov)
 % exp(hyp.mean)
 % exp(hyp.lik)
@@ -154,7 +155,7 @@ file_name = ['./Patient_Data/HPCC_data/'...
 load(file_name);
 
 %Grid_train = [(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
-Grid_train = [data.time_stamp*ones(size(S_temp,1),1) S_temp];
+Grid_train = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
 [est_train, ~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X, y, Grid_train);
 
 index = randperm(size(data.on_surface,1));
@@ -186,7 +187,7 @@ load(file_name);
 % --- Create spatio-temporal grid for prediction at t = last scan
 fprintf('\nPredicting ...\n');
 %Grid_test = [pat_info.numScan*ones(size(S_temp,1),1) S_temp];
-Grid_test = [data.time_stamp*ones(size(S_temp,1),1) S_temp];
+Grid_test = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
 [est_test,~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
 
 S_test_est = [];
