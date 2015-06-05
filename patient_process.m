@@ -15,10 +15,10 @@ X_test = [];
 y_test = [];
 timesize = pat_info.numScan-1; % last scan for prediction
 %timesize = pat_info.numScan-2; % last scan for prediction
+data_path = './Patient_Data/HPCC_data_standardized/';
 for i=1:timesize
     
-    file_name = ['./Patient_Data/HPCC_data/'...
-        pat_info.name num2str(i) '_inner'];
+    file_name = [data_path pat_info.name num2str(i) '_inner'];
     load(file_name)
     
     max_temp = max(data.on_surface);
@@ -125,15 +125,15 @@ hyp.mean = option.edgeLimit;
 
 %hyp.cov(1) = log(80);   % bandwidth of time
 
-hyp.cov(1) = log(pat_info.band_t);   % bandwidth of time
-hyp.cov(2) = log(5);   % bandwidth of x
-hyp.cov(3) = log(5);   % bandwidth of y
-hyp.cov(4) = log(10);  % bandwidth of z
+% hyp.cov(1) = log(pat_info.band_t);   % bandwidth of time
+% hyp.cov(2) = log(5);   % bandwidth of x
+% hyp.cov(3) = log(5);   % bandwidth of y
+% hyp.cov(4) = log(10);  % bandwidth of z
 
-% hyp.cov(1) = log(5);  % bandwidth of x
-% hyp.cov(2) = log(5);   % bandwidth of y
-% hyp.cov(3) = log(10);   % bandwidth of z
-% hyp.cov(4) = log(pat_info.band_t);   % bandwidth of time
+hyp.cov(1) = log(pat_info.band_t);   % bandwidth of time
+hyp.cov(2) = log(0.05);   % bandwidth of x
+hyp.cov(3) = log(0.05);   % bandwidth of y
+hyp.cov(4) = log(0.1);  % bandwidth of z
 
 hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
@@ -147,9 +147,7 @@ hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X, y);
 
 %%                  Do greedy search for threshold value
 % --- Create spatio-temporal grid for latest scan in the training
-file_name = ['./Patient_Data/HPCC_data/'...
-    pat_info.name num2str(timesize+1)...
-    '_inner'];
+file_name = [data_path pat_info.name num2str(timesize+1) '_inner'];
 load(file_name);
 
 Grid_train = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
@@ -177,9 +175,7 @@ out.thres_train = thres_train_min;
 
 %% Load the true scan
 
-file_name = ['./Patient_Data/HPCC_data/'...
-    pat_info.name num2str(pat_info.numScan)...
-    '_inner'];
+file_name = [data_path pat_info.name num2str(pat_info.numScan) '_inner'];
 load(file_name);
 %%                      Predict the test scan
 % --- Create spatio-temporal grid for prediction at t = last scan
