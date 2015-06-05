@@ -139,7 +139,8 @@ hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
-hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_test, y_test);
+%hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_test, y_test);
+hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X, y);
 % exp(hyp.cov)
 % exp(hyp.mean)
 % exp(hyp.lik)
@@ -155,7 +156,7 @@ Grid_train = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
 %Grid_train = [S_temp time_convert*data.time_stamp*ones(size(S_temp,1),1)];
 [est_train, ~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X, y, Grid_train);
 
-index = randperm(size(data.on_surface,1));
+ index = randperm(size(data.on_surface,1));
 S_validate = data.on_surface(index(1:option.cutoff),1:3);
 
 [thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
