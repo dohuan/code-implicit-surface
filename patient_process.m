@@ -4,19 +4,16 @@ fprintf('Progressing patient %s...\n',pat_info.name);
 
 max_ = [0 0 0];
 min_ = [1000 1000 1000];
-%thres_offset = 10;
-%time_ratio = exp((pat_info.numScan-1)/(pat_info.numScan-2))/...
-%                              exp((pat_info.numScan)/(pat_info.numScan-1));
+
 time_ratio = 1;
-time_convert = 30; % convert month to day
+time_convert = 1; % convert month to day
 X = [];
 y = [];
 X_test = [];
 y_test = [];
 timesize = pat_info.numScan-1; % last scan for prediction
-%timesize = pat_info.numScan-2; % last scan for prediction
-data_path = './Patient_Data/HPCC_data_standardized/';
-for i=1:timesize
+data_path = './Patient_Data/HPCC_data/';
+for i=1:pat_info.numScan
     
     file_name = [data_path pat_info.name num2str(i) '_inner'];
     load(file_name)
@@ -47,22 +44,14 @@ for i=1:timesize
         y_temp = data.on_surface(index(1:option.cutoff),end);
         time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
         % --- Update X and y
-        if (i~=timesize)
-            X = [X;[time_temp X_temp]];
-            %X = [X;[X_temp time_temp]];
-            y = [y;y_temp];
-        end
-        % --- Update X_test y_test
-        if (1)
-            X_test = [X_test;[time_temp X_temp]];
-            y_test = [y_test;y_temp];
-        end
+        X = [X;[time_temp X_temp]];
+        y = [y;y_temp];
     else
         % --- scale radii of inner data to be \in [-1,0]
         min_inner = min(data.inner_line(:,end));
         max_inner = max(data.inner_line(:,end));
         inner_temp = (data.inner_line(:,end)-max_inner)/(max_inner-min_inner);
-        inner_temp = inner_temp*option.edgeLimit;
+        %inner_temp = inner_temp*option.edgeLimit;
         %inner_temp = data.inner_line(:,end);
         
         index = randperm(size(data.on_surface,1));
@@ -73,33 +62,37 @@ for i=1:timesize
         time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
         
         % --- Update X and y
-        if (i~=timesize)
-            X = [X;[time_temp X_temp]];
-            %X = [X;[X_temp time_temp]];
-            y = [y;y_temp];
-        end
-        % --- Update X_test y_test
-        if (1)
-            X_test = [X_test;[time_temp X_temp]];
-            y_test = [y_test;y_temp];
-        end
+        X = [X;[time_temp X_temp]];
+        y = [y;y_temp];
     end
-%     if (i==timesize)
-%         S_offset = data.on_surface(index(1:option.cutoff),1:3);
-%     end
 end
 
 clear data
 
+%%                          Standardize data
+std_info(1).mean = mean(X(:,1));     % x
+std_info(1).std = sqrt(var(X(:,1)));
+std_info(2).mean = mean(X(:,2));     % y
+std_info(2).std = sqrt(var(X(:,2)));
+std_info(3).mean = mean(X(:,3));     % z
+std_info(3).std = sqrt(var(X(:,3)));
+std_info(4).mean = mean(X(:,4));     % t
+std_info(4).std = sqrt(var(X(:,4)));
+
+for i=1:size(X,2)
+    X(:,i) = (X(:,i)-std_info(i).mean)./std_info(i).std;
+end
+
+
+
+
+
 %%                          Run implicit surface GPML
 
-% --- Config temporal
-%ts = 1; % sampling time
-%t_grid = 1:ts:ts*timesize;
 % --- Config spatial
-x_max = max_(1);
-y_max = max_(2);
-z_max = max_(3);
+x_max = (max_(1)-std_info(1).mean)/std_info(1).std;
+y_max = (max_(2)-std_info(2).mean)/std_info(2).std;
+z_max = (max_(3)-std_info(3).mean)/std_info(3).std;
 
 x_min = min_(1);
 y_min = min_(2);
@@ -131,9 +124,9 @@ hyp.mean = option.edgeLimit;
 % hyp.cov(4) = log(10);  % bandwidth of z
 
 hyp.cov(1) = log(pat_info.band_t);   % bandwidth of time
-hyp.cov(2) = log(0.05);   % bandwidth of x
-hyp.cov(3) = log(0.05);   % bandwidth of y
-hyp.cov(4) = log(0.1);  % bandwidth of z
+hyp.cov(2) = log(5);   % bandwidth of x
+hyp.cov(3) = log(5);   % bandwidth of y
+hyp.cov(4) = log(10);  % bandwidth of z
 
 hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
@@ -147,14 +140,14 @@ hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X, y);
 
 %%                  Do greedy search for threshold value
 % --- Create spatio-temporal grid for latest scan in the training
-file_name = [data_path pat_info.name num2str(timesize+1) '_inner'];
+file_name = [data_path pat_info.name num2str(timesize) '_inner'];
 load(file_name);
 
 Grid_train = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
 %Grid_train = [S_temp time_convert*data.time_stamp*ones(size(S_temp,1),1)];
 [est_train, ~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X, y, Grid_train);
 
- index = randperm(size(data.on_surface,1));
+index = randperm(size(data.on_surface,1));
 S_validate = data.on_surface(index(1:option.cutoff),1:3);
 
 [thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
@@ -162,16 +155,6 @@ S_validate = data.on_surface(index(1:option.cutoff),1:3);
 
 out.Hause_min_train = Haus_min;
 out.thres_train = thres_train_min;
-
-
-%%                  Calculate the threshold offset
-% Grid_offset = [timesize*ones(size(S_temp,1),1) S_temp];
-% [est_offset, ~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X, y, Grid_offset);
-% 
-% [thres_offset_min,~,~] = thresCal(pat_info.name,est_offset,...
-%                                                    S_offset,S_temp,option);
-% 
-% thres_offset = abs(thres_offset_min-thres_train_min);
 
 %% Load the true scan
 
