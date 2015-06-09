@@ -90,7 +90,7 @@ y_test  = y(1:(pat_info.numScan-1)*option.cutoff,:);
 y_train = y(1:(pat_info.numScan-2)*option.cutoff,:);
 
 S_validate = X((pat_info.numScan-2)*option.cutoff+1:...
-                                    (pat_info.numScan-1)*option.cutoff,1:3);
+                                    (pat_info.numScan-1)*option.cutoff,2:4);
 
 
 %%                          Run implicit surface GPML
@@ -125,15 +125,17 @@ hyp.mean = option.edgeLimit;
 %hyp.cov(1) = log(80);   % bandwidth of time
 
 hyp.cov(1) = log((pat_info.band_t-std_info(1).mean)/std_info(1).std);   % bandwidth of time
-hyp.cov(2) = log((5-std_info(2).mean)/std_info(2).std);   % bandwidth of x
-hyp.cov(3) = log((5-std_info(3).mean)/std_info(3).std);   % bandwidth of y
-hyp.cov(4) = log((10-std_info(4).mean)/std_info(4).std);  % bandwidth of z
+hyp.cov(2) = log(0.25);   % bandwidth of x
+hyp.cov(3) = log(0.25);   % bandwidth of y
+hyp.cov(4) = log(0.5);  % bandwidth of z
 
 hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
-hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+
+%hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+
 % exp(hyp.cov)
 % exp(hyp.mean)
 % exp(hyp.lik)
@@ -185,7 +187,7 @@ out.S_est = S_test_est;
 out.est_train = est_train;
 out.est_test = est_test;
 
-index = randperm(size(data.on_surface,1));
-out.S_true = data.on_surface(index(1:option.cutoff),1:3);
+%index = randperm(size(data.on_surface,1));
+%out.S_true = data.on_surface(index(1:option.cutoff),1:3);
 out.Haus_dist = HausdorffDist(S_test_est,out.S_true);
 
