@@ -5,13 +5,11 @@ fprintf('Progressing patient %s...\n',pat_info.name);
 max_ = [0 0 0];
 min_ = [1000 1000 1000];
 
-time_ratio = 1;
 time_convert = 1; % convert month to day
 X = [];
 y = [];
-X_test = [];
-y_test = [];
-timesize = pat_info.numScan-1; % last scan for prediction
+
+%timesize = pat_info.numScan-1; % last scan for prediction
 data_path = './Patient_Data/HPCC_data/';
 for i=1:pat_info.numScan
     
@@ -70,33 +68,41 @@ end
 clear data
 
 %%                          Standardize data
-std_info(1).mean = mean(X(:,1));     % x
+std_info(1).mean = mean(X(:,1));     % t
 std_info(1).std = sqrt(var(X(:,1)));
-std_info(2).mean = mean(X(:,2));     % y
+std_info(2).mean = mean(X(:,2));     % x
 std_info(2).std = sqrt(var(X(:,2)));
-std_info(3).mean = mean(X(:,3));     % z
+std_info(3).mean = mean(X(:,3));     % y
 std_info(3).std = sqrt(var(X(:,3)));
-std_info(4).mean = mean(X(:,4));     % t
+std_info(4).mean = mean(X(:,4));     % z
 std_info(4).std = sqrt(var(X(:,4)));
 
 for i=1:size(X,2)
     X(:,i) = (X(:,i)-std_info(i).mean)./std_info(i).std;
 end
 
+time_line = unique(X(:,1)); % after standardized
 
+X_test = X(1:(pat_info.numScan-1)*option.cutoff,:);
+X_train = X(1:(pat_info.numScan-2)*option.cutoff,:);
+                                
+y_test  = y(1:(pat_info.numScan-1)*option.cutoff,:);
+y_train = y(1:(pat_info.numScan-2)*option.cutoff,:);
 
+S_validate = X((pat_info.numScan-2)*option.cutoff+1:...
+                                    (pat_info.numScan-1)*option.cutoff,1:3);
 
 
 %%                          Run implicit surface GPML
 
 % --- Config spatial
-x_max = (max_(1)-std_info(1).mean)/std_info(1).std;
-y_max = (max_(2)-std_info(2).mean)/std_info(2).std;
-z_max = (max_(3)-std_info(3).mean)/std_info(3).std;
+x_max = (max_(1)-std_info(2).mean)/std_info(2).std;
+y_max = (max_(2)-std_info(3).mean)/std_info(3).std;
+z_max = (max_(3)-std_info(4).mean)/std_info(4).std;
 
-x_min = min_(1);
-y_min = min_(2);
-z_min = min_(3);
+x_min = (min_(1)-std_info(2).mean)/std_info(2).std;
+y_min = (min_(2)-std_info(3).mean)/std_info(3).std;
+z_min = (min_(3)-std_info(4).mean)/std_info(4).std;
 
 x_mesh = linspace(x_min,x_max,option.gridsize);
 y_mesh = linspace(y_min,y_max,option.gridsize);
@@ -118,37 +124,31 @@ hyp.mean = option.edgeLimit;
 
 %hyp.cov(1) = log(80);   % bandwidth of time
 
-% hyp.cov(1) = log(pat_info.band_t);   % bandwidth of time
-% hyp.cov(2) = log(5);   % bandwidth of x
-% hyp.cov(3) = log(5);   % bandwidth of y
-% hyp.cov(4) = log(10);  % bandwidth of z
-
-hyp.cov(1) = log(pat_info.band_t);   % bandwidth of time
-hyp.cov(2) = log(5);   % bandwidth of x
-hyp.cov(3) = log(5);   % bandwidth of y
-hyp.cov(4) = log(10);  % bandwidth of z
+hyp.cov(1) = log((pat_info.band_t-std_info(1).mean)/std_info(1).std);   % bandwidth of time
+hyp.cov(2) = log((5-std_info(2).mean)/std_info(2).std);   % bandwidth of x
+hyp.cov(3) = log((5-std_info(3).mean)/std_info(3).std);   % bandwidth of y
+hyp.cov(4) = log((10-std_info(4).mean)/std_info(4).std);  % bandwidth of z
 
 hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
-%hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_test, y_test);
-hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X, y);
+hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
 % exp(hyp.cov)
 % exp(hyp.mean)
 % exp(hyp.lik)
 
 %%                  Do greedy search for threshold value
 % --- Create spatio-temporal grid for latest scan in the training
-file_name = [data_path pat_info.name num2str(timesize) '_inner'];
-load(file_name);
+%file_name = [data_path pat_info.name num2str(timesize) '_inner'];
+%load(file_name);
 
-Grid_train = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
-%Grid_train = [S_temp time_convert*data.time_stamp*ones(size(S_temp,1),1)];
-[est_train, ~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X, y, Grid_train);
 
-index = randperm(size(data.on_surface,1));
-S_validate = data.on_surface(index(1:option.cutoff),1:3);
+Grid_train = [time_line(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
+[est_train, ~] = gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
+
+%index = randperm(size(data.on_surface,1));
+%S_validate = data.on_surface(index(1:option.cutoff),1:3);
 
 [thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
                                                  S_validate,S_temp,option,1,0);
@@ -158,14 +158,13 @@ out.thres_train = thres_train_min;
 
 %% Load the true scan
 
-file_name = [data_path pat_info.name num2str(pat_info.numScan) '_inner'];
-load(file_name);
+%file_name = [data_path pat_info.name num2str(pat_info.numScan) '_inner'];
+%load(file_name);
 %%                      Predict the test scan
 % --- Create spatio-temporal grid for prediction at t = last scan
 fprintf('\nPredicting ...\n');
 
-Grid_test = [time_convert*data.time_stamp*ones(size(S_temp,1),1) S_temp];
-%Grid_test = [S_temp time_convert*data.time_stamp*ones(size(S_temp,1),1)];
+Grid_test = [time_line(pat_info.numScan)*ones(size(S_temp,1),1) S_temp];
 [est_test,~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
 
 S_test_est = [];
@@ -173,7 +172,7 @@ for j=1:size(est_test,1)
 %     if (est_test(j,1)>=(option.thres_min-option.thres_step)...
 %             &&est_test(j,1)<=thres_train_min)
     if (est_test(j,1)>=(option.thres_min-option.thres_step)...
-        &&est_test(j,1)<=thres_train_min*time_ratio) 
+        &&est_test(j,1)<=thres_train_min) 
         S_test_est = [S_test_est;S_temp(j,:)];
     end
 end
