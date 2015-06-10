@@ -9,42 +9,38 @@ addpath(genpath('./HausdorffDist'))
 
 % Pat_list(1).name = 'BB';
 % Pat_list(1).numScan = 3;
-% Pat_list(1).band_t = 550;
+% Pat_list(1).band_t = 360;
 % Pat_list(2).name = 'DD';
 % Pat_list(2).numScan = 3;
-% Pat_list(2).band_t = 700;
+% Pat_list(2).band_t = 360;
 % Pat_list(3).name = 'HH';
 % Pat_list(3).numScan = 7;
-% Pat_list(3).band_t = 85;
+% Pat_list(3).band_t = 360;
 % Pat_list(4).name = 'II';
 % Pat_list(4).numScan = 6;
-% Pat_list(4).band_t = 80;
+% Pat_list(4).band_t = 360;
 % Pat_list(5).name = 'JJ';
 % Pat_list(5).numScan = 5;
-% Pat_list(5).band_t = 85;
+% Pat_list(5).band_t = 360;
 % Pat_list(6).name = 'KK';
 % Pat_list(6).numScan = 5;
-% Pat_list(6).band_t = 85;
+% Pat_list(6).band_t = 360;
 % Pat_list(7).name = 'PP10';
 % Pat_list(7).numScan = 4;
-% Pat_list(7).band_t = 350;
+% Pat_list(7).band_t = 360;
 % Pat_list(8).name = 'PP12';
 % Pat_list(8).numScan = 6;
-% Pat_list(8).band_t = 85;
+% Pat_list(8).band_t = 360;
 % Pat_list(9).name = 'PP13';
 % Pat_list(9).numScan = 4;
-% Pat_list(9).band_t = 80;
+% Pat_list(9).band_t = 360;
 % Pat_list(10).name = 'PP14';
 % Pat_list(10).numScan = 3;
-% Pat_list(10).band_t = 80;
+% Pat_list(10).band_t = 360;
 
-% Pat_list(1).name = 'PP10';
-% Pat_list(1).numScan = 4;
-% Pat_list(1).band_t = 450; % 350 12.87
-
-Pat_list(1).name = 'II';
+Pat_list(1).name = 'KK';
 Pat_list(1).numScan = 5;
-Pat_list(1).band_t = 365; % standardized time
+Pat_list(1).band_t = 360;
 
 opt = Configuration();
 
@@ -72,7 +68,11 @@ for i=1:size(Pat_list,2)
     
     fprintf('Haus distance of patient %s: %.2f\n',Pat_list(i).name,predict(i).Haus_dist);
 end
+
+for i=1:size(Pat_list,2)
+    fprintf('Estimated time bandwith of patient %s: %.2f\n',Pat_list(i).name,predict(i).band_t);
+end
 time_run = toc;
 fprintf('\nRun time: %.2f minutes',time_run/60);
 
-%save('run_all_060115_3')
+%save('./results/run_all_061015_2')

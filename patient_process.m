@@ -5,7 +5,7 @@ fprintf('Progressing patient %s...\n',pat_info.name);
 max_ = [0 0 0];
 min_ = [1000 1000 1000];
 
-time_convert = 1; % convert month to day
+time_convert = 30; % convert month to day
 X = [];
 y = [];
 
@@ -117,29 +117,34 @@ likfunc  = @likGauss;
 meanfunc = @meanConst;
 hyp.mean = option.edgeLimit;
 
-hyp.cov(1) = log((pat_info.band_t-std_info(1).mean)/std_info(1).std);   % bandwidth of time
-hyp.cov(2) = log(0.25);   % bandwidth of x
-hyp.cov(3) = log(0.25);   % bandwidth of y
-hyp.cov(4) = log(0.02);  % bandwidth of z
+% hyp.cov(1) = log((pat_info.band_t-std_info(1).mean)/std_info(1).std);   % bandwidth of time
+% hyp.cov(2) = log(0.25);   % bandwidth of x
+% hyp.cov(3) = log(0.25);   % bandwidth of y
+% hyp.cov(4) = log(0.02);  % bandwidth of z
+
+hyp.cov(1) = log(abs((pat_info.band_t)/std_info(1).std));   % bandwidth of time
+hyp.cov(2) = log(abs((5)/std_info(2).std));   % bandwidth of x
+hyp.cov(3) = log(abs((5)/std_info(3).std));   % bandwidth of y
+hyp.cov(4) = log(abs((1)/std_info(4).std));  % bandwidth of z
 
 hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
 
-hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+hyp = minimize(hyp, @gp, -5, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
 
 % exp(hyp.cov)
 % exp(hyp.mean)
 % exp(hyp.lik)
-
+out.hyp = exp(hyp.cov);
 %%                  Do greedy search for threshold value
 % --- Create spatio-temporal grid for latest scan in the training
 
 Grid_train = [time_line(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
 [est_train, ~] = gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
 
-[thres_train_min,Haus_min,Haus_track] = thresCal(pat_info.name,est_train,...
+[thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
                                                  S_validate,S_temp,option,1,0);
 
 out.Hause_min_train = Haus_min;
@@ -174,4 +179,5 @@ end
 out.S_true = S_true;
 out.S_est = S_test_est;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);
+out.band_t = exp(hyp.cov(1))*std_info(1).std;
 
