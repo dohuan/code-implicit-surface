@@ -76,7 +76,7 @@ std_info(3).mean = mean(X(:,3));     % y
 std_info(3).std = sqrt(var(X(:,3)));
 std_info(4).mean = mean(X(:,4));     % z
 std_info(4).std = sqrt(var(X(:,4)));
-
+% --- Standardize data
 for i=1:size(X,2)
     X(:,i) = (X(:,i)-std_info(i).mean)./std_info(i).std;
 end
@@ -91,7 +91,8 @@ y_train = y(1:(pat_info.numScan-2)*option.cutoff,:);
 
 S_validate = X((pat_info.numScan-2)*option.cutoff+1:...
                                     (pat_info.numScan-1)*option.cutoff,2:4);
-
+S_true = X((pat_info.numScan-1)*option.cutoff+1:...
+                                    (pat_info.numScan)*option.cutoff,2:4);
 
 %%                          Run implicit surface GPML
 
@@ -110,31 +111,23 @@ z_mesh = linspace(z_min,z_max,option.gridsize);
 [S1,S2,S3] = meshgrid(x_mesh,y_mesh,z_mesh); % [middle shortest longest]
 S_temp = [S1(:),S2(:),S3(:)];
 
-% S = zeros(option.gridsize^3*timesize,3);
-% for j=1:timesize
-%     S((j-1)*option.gridsize^3+1:j*option.gridsize^3,1) = t_grid(j);
-%     S((j-1)*option.gridsize^3+1:j*option.gridsize^3,2:4) = S_temp;
-% end
-
 covfunc  = @covSEard;
 likfunc  = @likGauss;
 
 meanfunc = @meanConst;
 hyp.mean = option.edgeLimit;
 
-%hyp.cov(1) = log(80);   % bandwidth of time
-
 hyp.cov(1) = log((pat_info.band_t-std_info(1).mean)/std_info(1).std);   % bandwidth of time
 hyp.cov(2) = log(0.25);   % bandwidth of x
 hyp.cov(3) = log(0.25);   % bandwidth of y
-hyp.cov(4) = log(0.5);  % bandwidth of z
+hyp.cov(4) = log(0.05);  % bandwidth of z
 
 hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
 
-%hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
 
 % exp(hyp.cov)
 % exp(hyp.mean)
@@ -142,26 +135,16 @@ hyp.lik = log(0.03);
 
 %%                  Do greedy search for threshold value
 % --- Create spatio-temporal grid for latest scan in the training
-%file_name = [data_path pat_info.name num2str(timesize) '_inner'];
-%load(file_name);
-
 
 Grid_train = [time_line(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
 [est_train, ~] = gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
 
-%index = randperm(size(data.on_surface,1));
-%S_validate = data.on_surface(index(1:option.cutoff),1:3);
-
-[thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
+[thres_train_min,Haus_min,Haus_track] = thresCal(pat_info.name,est_train,...
                                                  S_validate,S_temp,option,1,0);
 
 out.Hause_min_train = Haus_min;
 out.thres_train = thres_train_min;
 
-%% Load the true scan
-
-%file_name = [data_path pat_info.name num2str(pat_info.numScan) '_inner'];
-%load(file_name);
 %%                      Predict the test scan
 % --- Create spatio-temporal grid for prediction at t = last scan
 fprintf('\nPredicting ...\n');
@@ -171,10 +154,8 @@ Grid_test = [time_line(pat_info.numScan)*ones(size(S_temp,1),1) S_temp];
 
 S_test_est = [];
 for j=1:size(est_test,1)
-%     if (est_test(j,1)>=(option.thres_min-option.thres_step)...
-%             &&est_test(j,1)<=thres_train_min)
-    if (est_test(j,1)>=(option.thres_min-option.thres_step)...
-        &&est_test(j,1)<=thres_train_min) 
+    %if (est_test(j,1)>=(option.thres_min-option.thres_step)...
+    if (est_test(j,1)>=0&&est_test(j,1)<=thres_train_min) 
         S_test_est = [S_test_est;S_temp(j,:)];
     end
 end
@@ -183,11 +164,14 @@ if(isempty(S_test_est)==1)
     fprintf('Prediction is empty!\n');
 end
 
-out.S_est = S_test_est;
 out.est_train = est_train;
 out.est_test = est_test;
-
-%index = randperm(size(data.on_surface,1));
-%out.S_true = data.on_surface(index(1:option.cutoff),1:3);
-out.Haus_dist = HausdorffDist(S_test_est,out.S_true);
+%%                  Convert 3-D model to unstandardized coordinates
+for i=1:3
+    S_test_est(:,i) = S_test_est(:,i).*std_info(i+1).std + std_info(i+1).mean;
+    S_true(:,i) = S_true(:,i).*std_info(i+1).std + std_info(i+1).mean;
+end
+out.S_true = S_true;
+out.S_est = S_test_est;
+out.Haus_dist = HausdorffDist(S_test_est,S_true);
 
