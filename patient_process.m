@@ -93,6 +93,8 @@ y_train = y(1:(pat_info.numScan-2)*option.cutoff,:);
 
 S_validate = X((pat_info.numScan-2)*option.cutoff+1:...
                                     (pat_info.numScan-1)*option.cutoff,2:4);
+                                
+                                
 S_true = X((pat_info.numScan-1)*option.cutoff+1:...
                                     (pat_info.numScan)*option.cutoff,2:4);
 
@@ -127,8 +129,8 @@ S_temp = [S1(:),S2(:),S3(:)];
 covfunc  = @covSEard;
 likfunc  = @likGauss;
 
-meanfunc = @meanConst;
-hyp.mean = option.edgeLimit;
+meanfunc = @meanOne;
+%hyp.mean = option.edgeLimit;
 
 % hyp.cov(1) = log((pat_info.band_t-std_info(1).mean)/std_info(1).std);   % bandwidth of time
 % hyp.cov(2) = log(0.25);   % bandwidth of x
@@ -150,11 +152,8 @@ hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
 
-%hyp = minimize(hyp, @gp, -5, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
 
-% exp(hyp.cov)
-% exp(hyp.mean)
-% exp(hyp.lik)
 out.hyp = exp(hyp.cov);
 %%                  Do greedy search for threshold value
 % --- Create spatio-temporal grid for latest scan in the training
@@ -175,13 +174,7 @@ fprintf('\nPredicting ...\n');
 Grid_test = [time_line(pat_info.numScan)*ones(size(S_temp,1),1) S_temp];
 [est_test,~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
 
-S_test_est = [];
-for j=1:size(est_test,1)
-    %if (est_test(j,1)>=(option.thres_min-option.thres_step)...
-    if (est_test(j,1)>=0&&est_test(j,1)<=thres_train_min) 
-        S_test_est = [S_test_est;S_temp(j,:)];
-    end
-end
+[S_test_est,~] = bin_search(est_train,est_test,thres_train_min,S_temp,option);
 
 if(isempty(S_test_est)==1)
     fprintf('Prediction is empty!\n');

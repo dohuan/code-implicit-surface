@@ -1,6 +1,6 @@
 function [thres_min,Haus_min,Haus_track] = thresCal(pat_name,est,S_true,spatial_grid,option,flag,thres_up)
 %%
-
+isPlot = 0;
 Haus_track = zeros(size(option.thres_range,1),1);
 S_est_min = [];
 Haus_min = 1000;
@@ -8,7 +8,7 @@ if (flag==1)
     for i=1:size(option.thres_range,1)
         S_est = [];
         
-        low_bound = option.thres_min-option.thres_step;
+        low_bound = option.thres_min;
         high_bound = option.thres_range(i);
         
         for j=1:size(est,1)
@@ -57,6 +57,10 @@ else
             pat_name,i/size(thres_range,1)*100);
     end
 end
-if (1)
-    
+if (isPlot==1)
+    plot(est);
+    hold on;
+    plot([0 7e4],[thres_min thres_min],'k-');
+    figure(2)
+    scatter3(S_est_min(:,1),S_est_min(:,2),S_est_min(:,3))
 end
