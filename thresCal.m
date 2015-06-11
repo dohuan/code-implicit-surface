@@ -2,7 +2,7 @@ function [thres_min,Haus_min,Haus_track] = thresCal(pat_name,est,S_true,spatial_
 %%
 
 Haus_track = zeros(size(option.thres_range,1),1);
-%S_est_min = [];
+S_est_min = [];
 Haus_min = 1000;
 if (flag==1)
     for i=1:size(option.thres_range,1)
@@ -21,7 +21,7 @@ if (flag==1)
             Haus_track(i) = Haus_temp;
             if (Haus_min>Haus_temp)
                 Haus_min = Haus_temp;
-                %S_est_min = S_est;
+                S_est_min = S_est;
                 thres_min = option.thres_range(i);
             end
         end

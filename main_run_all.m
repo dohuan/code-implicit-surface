@@ -40,7 +40,7 @@ addpath(genpath('./HausdorffDist'))
 
 Pat_list(1).name = 'KK';
 Pat_list(1).numScan = 5;
-Pat_list(1).band_t = 360;
+Pat_list(1).band_t = 500;
 
 opt = Configuration();
 

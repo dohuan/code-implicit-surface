@@ -67,20 +67,22 @@ end
 
 clear data
 
-%%                          Standardize data
-std_info(1).mean = mean(X(:,1));     % t
-std_info(1).std = sqrt(var(X(:,1)));
-std_info(2).mean = mean(X(:,2));     % x
-std_info(2).std = sqrt(var(X(:,2)));
-std_info(3).mean = mean(X(:,3));     % y
-std_info(3).std = sqrt(var(X(:,3)));
-std_info(4).mean = mean(X(:,4));     % z
-std_info(4).std = sqrt(var(X(:,4)));
-% --- Standardize data
-for i=1:size(X,2)
-    X(:,i) = (X(:,i)-std_info(i).mean)./std_info(i).std;
-end
+if (option.ifStand==1)
+    %%                          Standardize data
+    std_info(1).mean = mean(X(:,1));     % t
+    std_info(1).std = sqrt(var(X(:,1)));
+    std_info(2).mean = mean(X(:,2));     % x
+    std_info(2).std = sqrt(var(X(:,2)));
+    std_info(3).mean = mean(X(:,3));     % y
+    std_info(3).std = sqrt(var(X(:,3)));
+    std_info(4).mean = mean(X(:,4));     % z
+    std_info(4).std = sqrt(var(X(:,4)));
 
+    % --- Standardize data
+    for i=1:size(X,2)
+        X(:,i) = (X(:,i)-std_info(i).mean)./std_info(i).std;
+    end
+end
 time_line = unique(X(:,1)); % after standardized
 
 X_test = X(1:(pat_info.numScan-1)*option.cutoff,:);
@@ -97,13 +99,24 @@ S_true = X((pat_info.numScan-1)*option.cutoff+1:...
 %%                          Run implicit surface GPML
 
 % --- Config spatial
-x_max = (max_(1)-std_info(2).mean)/std_info(2).std;
-y_max = (max_(2)-std_info(3).mean)/std_info(3).std;
-z_max = (max_(3)-std_info(4).mean)/std_info(4).std;
+if (option.ifStand==1)
+    x_max = (max_(1)-std_info(2).mean)/std_info(2).std;
+    y_max = (max_(2)-std_info(3).mean)/std_info(3).std;
+    z_max = (max_(3)-std_info(4).mean)/std_info(4).std;
 
-x_min = (min_(1)-std_info(2).mean)/std_info(2).std;
-y_min = (min_(2)-std_info(3).mean)/std_info(3).std;
-z_min = (min_(3)-std_info(4).mean)/std_info(4).std;
+    x_min = (min_(1)-std_info(2).mean)/std_info(2).std;
+    y_min = (min_(2)-std_info(3).mean)/std_info(3).std;
+    z_min = (min_(3)-std_info(4).mean)/std_info(4).std;
+else
+    x_max = max_(1);
+    y_max = max_(2);
+    z_max = max_(3);
+
+    x_min = min_(1);
+    y_min = min_(2);
+    z_min = min_(3);
+end
+
 
 x_mesh = linspace(x_min,x_max,option.gridsize);
 y_mesh = linspace(y_min,y_max,option.gridsize);
@@ -121,18 +134,23 @@ hyp.mean = option.edgeLimit;
 % hyp.cov(2) = log(0.25);   % bandwidth of x
 % hyp.cov(3) = log(0.25);   % bandwidth of y
 % hyp.cov(4) = log(0.02);  % bandwidth of z
-
-hyp.cov(1) = log(abs((pat_info.band_t)/std_info(1).std));   % bandwidth of time
-hyp.cov(2) = log(abs((4)/std_info(2).std));   % bandwidth of x
-hyp.cov(3) = log(abs((4)/std_info(3).std));   % bandwidth of y
-hyp.cov(4) = log(abs((1)/std_info(4).std));  % bandwidth of z
-
-hyp.cov(5) = log(1);   % \sig_f
+if (option.ifStand == 1)
+    hyp.cov(1) = log(abs((pat_info.band_t)/std_info(1).std));   % bandwidth of time
+    hyp.cov(2) = log(abs((option.band_x)/std_info(2).std));   % bandwidth of x
+    hyp.cov(3) = log(abs((option.band_y)/std_info(3).std));   % bandwidth of y
+    hyp.cov(4) = log(abs((option.band_z)/std_info(4).std));  % bandwidth of z
+else
+    hyp.cov(1) = log(pat_info.band_t);
+    hyp.cov(2) = log(option.band_x);
+    hyp.cov(3) = log(option.band_y);
+    hyp.cov(4) = log(option.band_z);
+end
+hyp.cov(5) = log(option.band_f);   % \sig_f
 hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
 
-hyp = minimize(hyp, @gp, -5, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+%hyp = minimize(hyp, @gp, -5, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
 
 % exp(hyp.cov)
 % exp(hyp.mean)
@@ -171,13 +189,20 @@ end
 
 out.est_train = est_train;
 out.est_test = est_test;
+
+if (option.ifStand == 1)
 %%                  Convert 3-D model to unstandardized coordinates
-for i=1:3
-    S_test_est(:,i) = S_test_est(:,i).*std_info(i+1).std + std_info(i+1).mean;
-    S_true(:,i) = S_true(:,i).*std_info(i+1).std + std_info(i+1).mean;
+    for i=1:3
+        S_test_est(:,i) = S_test_est(:,i).*std_info(i+1).std + std_info(i+1).mean;
+        S_true(:,i) = S_true(:,i).*std_info(i+1).std + std_info(i+1).mean;
+    end
+    out.band_t = exp(hyp.cov(1))*std_info(1).std;
+else
+    out.band_t = exp(hyp.cov(1));
 end
 out.S_true = S_true;
 out.S_est = S_test_est;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);
-out.band_t = exp(hyp.cov(1))*std_info(1).std;
+
+
 
