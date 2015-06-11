@@ -4,9 +4,9 @@ function option = Configuration()
     option.cutoff = 1000;
     option.edgeLimit = 1; % 4e-3
     
-    option.thres_step  = 1e-5;
-    option.thres_min = 0.0;
-    option.thres_max = 0.6;
+    option.thres_step  = 1e-3;
+    option.thres_min = 0.4;
+    option.thres_max = 0.9;
     option.thres_range = (option.thres_min:option.thres_step:option.thres_max)';
     
     option.num_worker = 10;

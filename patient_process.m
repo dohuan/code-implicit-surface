@@ -123,8 +123,8 @@ hyp.mean = option.edgeLimit;
 % hyp.cov(4) = log(0.02);  % bandwidth of z
 
 hyp.cov(1) = log(abs((pat_info.band_t)/std_info(1).std));   % bandwidth of time
-hyp.cov(2) = log(abs((5)/std_info(2).std));   % bandwidth of x
-hyp.cov(3) = log(abs((5)/std_info(3).std));   % bandwidth of y
+hyp.cov(2) = log(abs((4)/std_info(2).std));   % bandwidth of x
+hyp.cov(3) = log(abs((4)/std_info(3).std));   % bandwidth of y
 hyp.cov(4) = log(abs((1)/std_info(4).std));  % bandwidth of z
 
 hyp.cov(5) = log(1);   % \sig_f
