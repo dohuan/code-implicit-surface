@@ -4,11 +4,8 @@ function option = Configuration()
     option.cutoff = 1000;
     option.edgeLimit = 1; % 4e-3
     
-    option.range_size = 1000;
-    option.thres_min = 0.0;
-    option.thres_max = 0.2;
-    option.thres_range = ...
-            linspace(option.thres_min,option.thres_max,option.range_size)';
+    option.thres_size = 500;
+    option.thres_span = 0.2;
     
     option.bin_size = 2000;
     option.bin_min = 0;
@@ -20,8 +17,8 @@ function option = Configuration()
     
     option.ifStand = 1; % 0: not standardize data, 1: standardize data
     
-    option.band_x = 2.5;
-    option.band_y = 2.5;
-    option.band_z = 8;
+    option.band_x = 1.27;
+    option.band_y = 1.27;
+    option.band_z = 1.27;
     option.band_f = 1;
 end

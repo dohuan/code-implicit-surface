@@ -38,14 +38,14 @@ addpath(genpath('./HausdorffDist'))
 % Pat_list(10).numScan = 3;
 % Pat_list(10).band_t = 360;
 
-Pat_list(1).name = 'BB';
-Pat_list(1).numScan = 3;
-Pat_list(1).band_t = 360;
+Pat_list(1).name = 'PP13';
+Pat_list(1).numScan = 4;
+Pat_list(1).band_t = 365;
 
-opt = Configuration();
+option = Configuration();
 
 parfor i=1:size(Pat_list,2)
-	predict(i) = patient_process(Pat_list(i),opt);
+	predict(i) = patient_process(Pat_list(i),option);
 end
 
 %% Visualize results

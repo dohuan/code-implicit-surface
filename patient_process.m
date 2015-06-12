@@ -130,6 +130,8 @@ covfunc  = @covSEard;
 likfunc  = @likGauss;
 
 meanfunc = @meanOne;
+
+%meanfunc = @meanConst;
 %hyp.mean = option.edgeLimit;
 
 % hyp.cov(1) = log((pat_info.band_t-std_info(1).mean)/std_info(1).std);   % bandwidth of time
