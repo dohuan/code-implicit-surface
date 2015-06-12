@@ -40,7 +40,7 @@ addpath(genpath('./HausdorffDist'))
 
 Pat_list(1).name = 'BB';
 Pat_list(1).numScan = 3;
-Pat_list(1).band_t = 180;
+Pat_list(1).band_t = 360;
 
 opt = Configuration();
 
@@ -75,4 +75,4 @@ end
 time_run = toc;
 fprintf('\nRun time: %.2f minutes',time_run/60);
 
-%save('./results/run_all_061015_2')
+save('./results/run_all_061115')

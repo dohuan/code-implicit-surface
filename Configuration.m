@@ -4,9 +4,9 @@ function option = Configuration()
     option.cutoff = 1000;
     option.edgeLimit = 1; % 4e-3
     
-    option.range_size = 500;
-    option.thres_min = 0.4;
-    option.thres_max = 0.6;
+    option.range_size = 1000;
+    option.thres_min = 0.0;
+    option.thres_max = 0.2;
     option.thres_range = ...
             linspace(option.thres_min,option.thres_max,option.range_size)';
     

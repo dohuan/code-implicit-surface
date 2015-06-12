@@ -174,7 +174,7 @@ fprintf('\nPredicting ...\n');
 Grid_test = [time_line(pat_info.numScan)*ones(size(S_temp,1),1) S_temp];
 [est_test,~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
 
-[S_test_est,~] = bin_search(est_train,est_test,thres_train_min,S_temp,option);
+[S_test_est,thres_test_min] = bin_search(est_train,est_test,thres_train_min,S_temp,option);
 
 if(isempty(S_test_est)==1)
     fprintf('Prediction is empty!\n');
@@ -182,6 +182,7 @@ end
 
 out.est_train = est_train;
 out.est_test = est_test;
+out.thres_test = thres_test_min;
 
 if (option.ifStand == 1)
 %%                  Convert 3-D model to unstandardized coordinates
