@@ -167,6 +167,12 @@ index_slice = find(predict(a).S_est(:,3)==predict(a).S_est(z_slice,3));
 S_plot = predict(a).S_est(index_slice,:);
 scatter3(S_plot(:,1),S_plot(:,2),S_plot(:,3));
 
+z_slice = 2000;
+a = 1;
+index_slice = find(S_est_min_(:,3)==S_est_min_(z_slice,3));
+S_plot = S_est_min_(index_slice,:);
+scatter3(S_plot(:,1),S_plot(:,2),S_plot(:,3));
+
 
 plot(est_test,'r')
 hold on

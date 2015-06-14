@@ -163,8 +163,8 @@ out.hyp = exp(hyp.cov);
 Grid_train = [time_line(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
 [est_train, ~] = gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
 
-[thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
-                                                 S_validate,S_temp,option,1,0);
+[thres_train_min,~,~] = thresCal(pat_info.name,est_train,...
+                                                 S_validate,S_temp,option,1);
 
 out.Hause_min_train = Haus_min;
 out.thres_train = thres_train_min;
@@ -176,7 +176,7 @@ fprintf('\nPredicting ...\n');
 Grid_test = [time_line(pat_info.numScan)*ones(size(S_temp,1),1) S_temp];
 [est_test,~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
 
-[S_test_est,thres_test_min] = bin_search(est_train,est_test,thres_train_min,S_temp,option);
+[S_test_est,thres_test_min] = bin_search(est_train,est_test,thres_train_min,S_temp,option,0);
 
 if(isempty(S_test_est)==1)
     fprintf('Prediction is empty!\n');
