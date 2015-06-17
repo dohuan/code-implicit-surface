@@ -39,7 +39,7 @@ addpath(genpath('./HausdorffDist'))
 % Pat_list(10).band_t = 360;
 
 Pat_list(1).name = 'PP14';
-Pat_list(1).numScan = 3;
+Pat_list(1).numScan = 4;
 Pat_list(1).band_t = 365;
 
 option = Configuration();

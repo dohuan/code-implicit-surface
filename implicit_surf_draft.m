@@ -182,6 +182,16 @@ plot([0 7e4],[opt_thres opt_thres],'r-')
 
 plot(predict.est_test,'r')
 hold on
-plot([0 7e4],[predict.thres_test predict.thres_test],'r-')
+plot([0 7e4],[predict.thres_test predict.thres_test],'r-','LineWidth',2)
 plot(predict.est_train)
-plot([0 7e4],[predict.thres_train predict.thres_train],'b-')
+plot([0 7e4],[predict.thres_train.up predict.thres_train.up],'b-','LineWidth',2)
+
+% test surface_refiner.m
+load PP13_test
+out = surface_refiner(predict.S_est);
+
+
+scatter3(predict.S_est(:,1),predict.S_est(:,2),predict.S_est(:,3))
+hold on
+scatter3(predict.S_true(:,1),predict.S_true(:,2),predict.S_true(:,3),'ro')
+
