@@ -163,8 +163,8 @@ out.hyp = exp(hyp.cov);
 Grid_train = [time_line(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
 [est_train, ~] = gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
 
-[thres_train_min,~,~] = thresCal(pat_info.name,est_train,...
-                                                 S_validate,S_temp,option,1);
+[thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
+                                                 S_validate,S_temp,option,0);
 
 out.Hause_min_train = Haus_min;
 out.thres_train = thres_train_min;
@@ -186,6 +186,8 @@ out.est_train = est_train;
 out.est_test = est_test;
 out.thres_test = thres_test_min;
 
+
+
 if (option.ifStand == 1)
 %%                  Convert 3-D model to unstandardized coordinates
     for i=1:3
@@ -196,6 +198,8 @@ if (option.ifStand == 1)
 else
     out.band_t = exp(hyp.cov(1));
 end
+
+
 out.S_true = S_true;
 out.S_est = S_test_est;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);

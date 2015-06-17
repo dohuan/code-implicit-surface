@@ -2,7 +2,7 @@ function [thres,Haus_min,Haus_track] = thresCal(pat_name,est,S_true,spatial_grid
 %%
 % flag = 0 : search for upper threshold ONLY
 % flag = 1 : search for upper AND lower threshold
-isPlot = 1;
+isPlot = 0;
 
 
 thres_lowBound = min(est);
@@ -78,6 +78,6 @@ if (isPlot==1)
     end
     figure(2)
     scatter3(S_est_min(:,1),S_est_min(:,2),S_est_min(:,3));
-    figure(3)
-    scatter3(S_est_min_(:,1),S_est_min_(:,2),S_est_min_(:,3));
+    %figure(3)
+    %scatter3(S_est_min_(:,1),S_est_min_(:,2),S_est_min_(:,3));
 end
