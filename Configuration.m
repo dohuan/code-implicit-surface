@@ -17,8 +17,8 @@ function option = Configuration()
     
     option.ifStand = 1; % 0: not standardize data, 1: standardize data
     
-    option.band_x = 1.3;
-    option.band_y = 1.3;
-    option.band_z = 1.3;
+    option.band_x = 1.1;
+    option.band_y = 1.1;
+    option.band_z = 1.1;
     option.band_f = 1;
 end
