@@ -131,25 +131,18 @@ likfunc  = @likGauss;
 
 meanfunc = @meanOne;
 
-%meanfunc = @meanConst;
-%hyp.mean = option.edgeLimit;
-
-% hyp.cov(1) = log((pat_info.band_t-std_info(1).mean)/std_info(1).std);   % bandwidth of time
-% hyp.cov(2) = log(0.25);   % bandwidth of x
-% hyp.cov(3) = log(0.25);   % bandwidth of y
-% hyp.cov(4) = log(0.02);  % bandwidth of z
 if (option.ifStand == 1)
     hyp.cov(1) = log(abs((pat_info.band_t)/std_info(1).std));   % bandwidth of time
-    hyp.cov(2) = log(abs((option.band_x)/std_info(2).std));   % bandwidth of x
-    hyp.cov(3) = log(abs((option.band_y)/std_info(3).std));   % bandwidth of y
-    hyp.cov(4) = log(abs((option.band_z)/std_info(4).std));  % bandwidth of z
+    hyp.cov(2) = log(abs((pat_info.band_x)/std_info(2).std));   % bandwidth of x
+    hyp.cov(3) = log(abs((pat_info.band_y)/std_info(3).std));   % bandwidth of y
+    hyp.cov(4) = log(abs((pat_info.band_z)/std_info(4).std));  % bandwidth of z
 else
     hyp.cov(1) = log(pat_info.band_t);
-    hyp.cov(2) = log(option.band_x);
-    hyp.cov(3) = log(option.band_y);
-    hyp.cov(4) = log(option.band_z);
+    hyp.cov(2) = log(pat_info.band_x);
+    hyp.cov(3) = log(pat_info.band_y);
+    hyp.cov(4) = log(pat_info.band_z);
 end
-hyp.cov(5) = log(option.band_f);   % \sig_f
+hyp.cov(5) = log(pat_info.band_f);   % \sig_f
 hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
@@ -199,9 +192,9 @@ else
     out.band_t = exp(hyp.cov(1));
 end
 
-
+% Refine the surface as post-processing
+out.S_est = surface_refiner(S_test_est);
 out.S_true = S_true;
-out.S_est = S_test_est;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);
 
 
