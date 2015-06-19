@@ -28,12 +28,25 @@ for i=1:nz
             group2 = [group2;pts(i).xy(j,:)];
         end
     end
-    
-    K1 = convhull(group1(:,1),group1(:,2));
-    K2 = convhull(group2(:,1),group2(:,2));
-    xy_temp = [group1(K1,:);group2(K2,:)];
-    z_temp = pts(i).z*ones(size(xy_temp,1),1);
-    out = [out;[xy_temp z_temp]];
+    if (size(group1,1)>2&&size(group2,1)>2)
+        K1 = convhull(group1(:,1),group1(:,2));
+        K2 = convhull(group2(:,1),group2(:,2));
+        xy_temp = [group1(K1,:);group2(K2,:)];
+        z_temp = pts(i).z*ones(size(xy_temp,1),1);
+        out = [out;[xy_temp z_temp]];
+    elseif(size(group1,1)<3&&size(group2,1)>2)
+        K2 = convhull(group2(:,1),group2(:,2));
+        xy_temp = group2(K2,:);
+        z_temp = pts(i).z*ones(size(xy_temp,1),1);
+        out = [out;[xy_temp z_temp]];
+    elseif (size(group2,1)<3&&size(group1,1)>2)
+        K1 = convhull(group1(:,1),group2(:,2));
+        xy_temp = group2(K1,:);
+        z_temp = pts(i).z*ones(size(xy_temp,1),1);
+        out = [out;[xy_temp z_temp]];
+    end
 end
 
 end
+
+        

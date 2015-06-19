@@ -27,15 +27,14 @@ if (ifPlot==1)
         subplot(1,2,2)
         scatter3(predict(i).S_true(:,1),predict(i).S_true(:,2),predict(i).S_true(:,3));
         title('True');
-        
-        fprintf('Haus distance of patient %s: %.2f\n',Pat_list(i).name,predict(i).Haus_dist);
     end
 end
 
 for i=1:size(Pat_list,2)
     fprintf('Estimated time bandwith of patient %s: %.2f\n',Pat_list(i).name,predict(i).band_t);
+    fprintf('Haus distance of patient %s: %.2f\n',Pat_list(i).name,predict(i).Haus_dist);
 end
 time_run = toc;
 fprintf('\nRun time: %.2f minutes',time_run/60);
 
-save('./results/run_all_061815')
+save('./results/run_all_061915_local')
