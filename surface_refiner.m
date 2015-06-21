@@ -36,24 +36,32 @@ for i=1:nz
         end
     end
     if (size(group1,1)>pts_thres&&size(group2,1)>pts_thres)
-        K1 = convhull(group1(:,1),group1(:,2));
-        K2 = convhull(group2(:,1),group2(:,2));
-        xy_temp = [group1(K1,:);group2(K2,:)];
+        temp1 = boundary_select(group1);
+        temp2 = boundary_select(group2);
+        xy_temp = [temp1;temp2];
+        
         z_temp = pts(i).z*ones(size(xy_temp,1),1);
         out = [out;[xy_temp z_temp]];
     elseif(size(group1,1)<=pts_thres&&size(group2,1)>pts_thres)
-        K2 = convhull(group2(:,1),group2(:,2));
-        xy_temp = group2(K2,:);
+        xy_temp = boundary_select(group2);
         z_temp = pts(i).z*ones(size(xy_temp,1),1);
         out = [out;[xy_temp z_temp]];
     elseif (size(group2,1)<=pts_thres&&size(group1,1)>pts_thres)
-        K1 = convhull(group1(:,1),group1(:,2));
-        xy_temp = group1(K1,:);
+        xy_temp = boundary_select(group1);
         z_temp = pts(i).z*ones(size(xy_temp,1),1);
         out = [out;[xy_temp z_temp]];
     end
 end
 
+end
+
+function out = boundary_select(pts_2D)
+    if (size(unique(pts_2D(:,1)),1)~=1&&size(unique(pts_2D(:,2)),1)~=1)
+        K = convhull(pts_2D(:,1),pts_2D(:,2));
+        out = pts_2D(K,:);
+    else
+        out = pts_2D;
+    end
 end
 
         
