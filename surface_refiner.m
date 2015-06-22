@@ -16,11 +16,13 @@ for i=1:n
     pts(ix).xy = [pts(ix).xy;points(i,1:2)];
 end
 
+del_index = [];
 for i=1:size(pts,2)
     if(size(pts(i).xy,1)<3)
-        pts(i) = [];
+        del_index = [del_index, i];
     end
 end
+pts(del_index) = [];
 nz = size(pts,2);
 %% scan through each layer
 z_temp = [];
