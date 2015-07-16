@@ -149,7 +149,7 @@ hyp.lik = log(0.03);
 
 hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
 
-out.hyp = exp(hyp.cov);
+out.std_hyp = exp(hyp.cov);
 %%                  Do greedy search for threshold value
 % --- Create spatio-temporal grid for latest scan in the training
 
@@ -188,8 +188,16 @@ if (option.ifStand == 1)
         S_true(:,i) = S_true(:,i).*std_info(i+1).std + std_info(i+1).mean;
     end
     out.band_t = exp(hyp.cov(1))*std_info(1).std;
+    out.band_x = exp(hyp.cov(2))*std_info(2).std;
+    out.band_y = exp(hyp.cov(3))*std_info(3).std;
+    out.band_z = exp(hyp.cov(4))*std_info(4).std;
+    out.band_f = exp(hyp.cov(5));
 else
     out.band_t = exp(hyp.cov(1));
+    out.band_x = exp(hyp.cov(2));
+    out.band_y = exp(hyp.cov(3));
+    out.band_z = exp(hyp.cov(4));
+    out.band_f = exp(hyp.cov(5));
 end
 
 % Refine the surface as post-processing

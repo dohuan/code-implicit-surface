@@ -1,5 +1,5 @@
 function Pat_list = patient_list()
-mode = 0; % 0: run all 1: test one patient
+mode = 1; % 0: run all 1: test one patient
 
 if (mode==0)
     Pat_list(1).name = 'BB';
@@ -84,12 +84,12 @@ if (mode==0)
     
 else
     
-    Pat_list(1).name = 'PP14';
+    Pat_list(1).name = 'BB';
     Pat_list(1).numScan = 3;
     Pat_list(1).band_t = 360;
-    Pat_list(1).band_x = 1.3;
-    Pat_list(1).band_y = 1.3;
-    Pat_list(1).band_z = 1.3;
+    Pat_list(1).band_x = 1.5;
+    Pat_list(1).band_y = 1.5;
+    Pat_list(1).band_z = 1.5;
     Pat_list(1).band_f = 1;
     
 end
