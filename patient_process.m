@@ -11,6 +11,7 @@ y = [];
 
 %timesize = pat_info.numScan-1; % last scan for prediction
 data_path = './Patient_Data/HPCC_data/';
+out.name = pat_info.name;
 for i=1:pat_info.numScan
     
     file_name = [data_path pat_info.name num2str(i) '_inner'];

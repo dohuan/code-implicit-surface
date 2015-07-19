@@ -11,7 +11,7 @@ ifPlot = 0;
 Pat_list = patient_list();
 option = Configuration();
 
-parfor i=1:size(Pat_list,2)
+for i=1:size(Pat_list,2)
 	predict(i) = patient_process(Pat_list(i),option);
 end
 
@@ -37,4 +37,4 @@ end
 time_run = toc;
 fprintf('\nRun time: %.2f minutes',time_run/60);
 
-%save('./results/run_all_062115_local')
+save('./results/run_all_071715_local')
