@@ -11,8 +11,9 @@ ifPlot = 0;
 Pat_list = patient_list();
 option = Configuration();
 
-for i=1:size(Pat_list,2)
-	predict(i) = patient_process(Pat_list(i),option);
+parfor i=1:size(Pat_list,2)
+	%predict(i) = patient_process(Pat_list(i),option);
+    predict(i) = patient_process_1(Pat_list(i),option);
 end
 
 if (ifPlot==1)

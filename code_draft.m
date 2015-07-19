@@ -350,3 +350,61 @@ ylabel('posterior mean');
 % ----------------
 field = reshape(predict(1).est_train,option.gridsize,option.gridsize,option.gridsize);
 
+
+% ---------- Create contour plot include +std and -std
+z_line = unique(predict.S_est(:,end),'rows','stable');
+index = [5 10 15 20 25];
+slice_list = z_line(index);
+hold on
+rec = [30 30;140 30;140 100;30 100;30 30];
+for i=1:size(slice_list,1)
+	ix = find(predict.S_est(:,3)==slice_list(i));
+	xy = predict.S_est(ix,1:2);
+	xy = boundary_select(xy);
+	z = slice_list(i)*ones(size(xy,1),1);
+	plot3(xy(:,1),xy(:,2),z,'r-','LineWidth',2);
+	plot3(rec(:,1),rec(:,2),slice_list(i)*ones(size(rec,1),1),'k','LineWidth',1);
+	
+	ix = find(predict.S_est_up(:,3)==slice_list(i));
+	xy = predict.S_est_up(ix,1:2);
+	xy = boundary_select(xy);
+	z = slice_list(i)*ones(size(xy,1),1);
+	plot3(xy(:,1),xy(:,2),z,'b-.','LineWidth',2);
+	
+	ix = find(predict.S_est_down(:,3)==slice_list(i));
+	xy = predict.S_est_down(ix,1:2);
+	xy = boundary_select(xy);
+	z = slice_list(i)*ones(size(xy,1),1);
+	plot3(xy(:,1),xy(:,2),z,'g--','LineWidth',2);
+	
+end
+hold off
+set(gca,'Fontsize',16);
+
+% --------- Print result to screen
+hold on
+fprintf('name band_f band_t band_x band_y band_z Haust_dist\n');
+for i=1:size(predict,2)
+	fprintf('%s ',predict(i).name);
+	fprintf('%.1f ',predict(i).band_f);
+	fprintf('%.1f ',predict(i).band_t);
+	fprintf('%.1f ',predict(i).band_x);
+	fprintf('%.1f ',predict(i).band_y);
+	fprintf('%.1f ',predict(i).band_z);
+	fprintf('%.1f ',predict(i).Haus_dist);
+	fprintf('\n');
+	plot(Pat_list(i).numScan,predict(i).Haus_dist,'ks','LineWidth',2);
+	text(Pat_list(i).numScan+0.2,predict(i).Haus_dist+0.2,Pat_list(i).name(2:end));
+	error(i) = predict(i).Haus_dist;
+end
+fprintf('Mean of Haus dist: %f\n',mean(error));
+fprintf('Std of Haus dist: %f\n',sqrt(var(error)));
+xlim([2 8]);
+xlabel('No of scans');
+ylabel('Hausdoff distance');
+box on
+set(gca,'FontSize',16);
+
+
+
+
