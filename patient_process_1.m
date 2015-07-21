@@ -2,7 +2,7 @@ function out = patient_process_1(pat_info,option)
 
 fprintf('Progressing patient %s...\n',pat_info.name);
 
-mul_std = 0.3; % 1.645: 90% confidence interval
+mul_std = 0.4; % 1.645: 90% confidence interval   0.3
 
 max_ = [0 0 0];
 min_ = [1000 1000 1000];
@@ -156,7 +156,7 @@ out.std_hyp = exp(hyp.cov);
 % --- Create spatio-temporal grid for latest scan in the training
 
 Grid_train = [time_line(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
-[est_train, ~] = gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
+[est_train, var_train] = gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
 
 [thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
                                                  S_validate,S_temp,option,0);
@@ -171,8 +171,8 @@ fprintf('\nPredicting ...\n');
 Grid_test = [time_line(pat_info.numScan)*ones(size(S_temp,1),1) S_temp];
 [est_test,var_test] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
 
-est_test_up = est_test+mul_std*var_test;
-est_test_down = est_test-mul_std*var_test;
+est_test_up = est_test+mul_std*sqrt(var_test);
+est_test_down = est_test-mul_std*sqrt(var_test);
 
 [S_test_est,thres_test_min] = bin_search(est_train,est_test,thres_train_min,S_temp,option,0);
 %[S_test_est_up,~] = bin_search(est_train,est_test_up,thres_train_min,S_temp,option,0);
@@ -191,6 +191,8 @@ for j=1:size(est_test_down,1)
         S_test_est_down = [S_test_est_down;S_temp(j,:)];
     end
 end
+
+
 
 if(isempty(S_test_est)==1)
     fprintf('Prediction is empty!\n');

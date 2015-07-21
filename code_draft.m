@@ -356,7 +356,7 @@ z_line = unique(predict.S_est(:,end),'rows','stable');
 index = [5 10 15 20 25];
 slice_list = z_line(index);
 hold on
-rec = [30 30;140 30;140 100;30 100;30 30];
+rec = [70 40;170 40;170 110;70 110;70 40];
 for i=1:size(slice_list,1)
 	ix = find(predict.S_est(:,3)==slice_list(i));
 	xy = predict.S_est(ix,1:2);
