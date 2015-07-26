@@ -2,7 +2,7 @@ clear
 clc
 close all
 %% take output as cloud point, convert to PLY for 3-D rendering
-cloudFile = './Results/run_all_062115_local(final)';
+cloudFile = './Results/run_all_071715_local(final)';
 load(cloudFile);
 
 for i=1:size(predict,2)
