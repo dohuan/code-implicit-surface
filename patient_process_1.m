@@ -2,7 +2,7 @@ function out = patient_process_1(pat_info,option)
 
 fprintf('Progressing patient %s...\n',pat_info.name);
 
-mul_std = 0.4; % 1.645: 90% confidence interval   0.3
+mul_std = 0.6; % 1.645: 90% confidence interval   0.3
 
 max_ = [0 0 0];
 min_ = [1000 1000 1000];
@@ -210,8 +210,12 @@ if (option.ifStand == 1)
     for i=1:3
         S_test_est(:,i) = S_test_est(:,i).*std_info(i+1).std + std_info(i+1).mean;
         S_true(:,i) = S_true(:,i).*std_info(i+1).std + std_info(i+1).mean;
-        S_test_est_up(:,i) = S_test_est_up(:,i).*std_info(i+1).std + std_info(i+1).mean;
-        S_test_est_down(:,i) = S_test_est_down(:,i).*std_info(i+1).std + std_info(i+1).mean;
+        if(isempty(S_test_est_up)==0)
+            S_test_est_up(:,i) = S_test_est_up(:,i).*std_info(i+1).std + std_info(i+1).mean;
+        end
+        if(isempty(S_test_est_down)==0)
+            S_test_est_down(:,i) = S_test_est_down(:,i).*std_info(i+1).std + std_info(i+1).mean;
+        end
     end
     out.band_t = exp(hyp.cov(1))*std_info(1).std;
     out.band_x = exp(hyp.cov(2))*std_info(2).std;

@@ -365,21 +365,99 @@ for i=1:size(slice_list,1)
 	plot3(xy(:,1),xy(:,2),z,'r-','LineWidth',2);
 	plot3(rec(:,1),rec(:,2),slice_list(i)*ones(size(rec,1),1),'k','LineWidth',1);
 	
-	ix = find(predict.S_est_up(:,3)==slice_list(i));
-	xy = predict.S_est_up(ix,1:2);
-	xy = boundary_select(xy);
-	z = slice_list(i)*ones(size(xy,1),1);
-	plot3(xy(:,1),xy(:,2),z,'b-.','LineWidth',2);
+	if (isempty(predict.S_est_up)==0)
+		ix = find(predict.S_est_up(:,3)==slice_list(i));
+		xy = predict.S_est_up(ix,1:2);
+		xy = boundary_select(xy);
+		z = slice_list(i)*ones(size(xy,1),1);
+		plot3(xy(:,1),xy(:,2),z,'b-.','LineWidth',2);
+	end
 	
-	ix = find(predict.S_est_down(:,3)==slice_list(i));
-	xy = predict.S_est_down(ix,1:2);
-	xy = boundary_select(xy);
-	z = slice_list(i)*ones(size(xy,1),1);
-	plot3(xy(:,1),xy(:,2),z,'g--','LineWidth',2);
-	
+	if (isempty(predict.S_est_down)==0)
+		ix = find(predict.S_est_down(:,3)==slice_list(i));
+		xy = predict.S_est_down(ix,1:2);
+		xy = boundary_select(xy);
+		z = slice_list(i)*ones(size(xy,1),1);
+		plot3(xy(:,1),xy(:,2),z,'g--','LineWidth',2);
+	end
 end
 hold off
 set(gca,'Fontsize',16);
+
+
+
+
+% ---------- Create contour plot include +std and -std (BEST and WORST)
+predict_best = predict(1);
+set(0,'defaultfigurecolor',[1 1 1])
+subplot(2,1,1)
+z_line = unique(predict_best.S_est(:,end),'rows','stable');
+index = [5 10 15 20 25];
+slice_list = z_line(index);
+hold on
+rec = [70 40;170 40;170 110;70 110;70 40];
+for i=1:size(slice_list,1)
+	ix = find(predict_best.S_est(:,3)==slice_list(i));
+	xy = predict_best.S_est(ix,1:2);
+	xy = boundary_select(xy);
+	z = slice_list(i)*ones(size(xy,1),1);
+	plot3(xy(:,1),xy(:,2),z,'r-','LineWidth',2);
+	plot3(rec(:,1),rec(:,2),slice_list(i)*ones(size(rec,1),1),'k','LineWidth',1);
+	
+	if (isempty(predict_best.S_est_up)==0)
+		ix = find(predict_best.S_est_up(:,3)==slice_list(i));
+		xy = predict_best.S_est_up(ix,1:2);
+		xy = boundary_select(xy);
+		z = slice_list(i)*ones(size(xy,1),1);
+		plot3(xy(:,1),xy(:,2),z,'b-.','LineWidth',2);
+	end
+	
+	if (isempty(predict_best.S_est_down)==0)
+		ix = find(predict_best.S_est_down(:,3)==slice_list(i));
+		xy = predict_best.S_est_down(ix,1:2);
+		xy = boundary_select(xy);
+		z = slice_list(i)*ones(size(xy,1),1);
+		plot3(xy(:,1),xy(:,2),z,'g--','LineWidth',2);
+	end
+end
+hold off
+set(gca,'Fontsize',16);
+
+predict_worst = predict(2);
+set(0,'defaultfigurecolor',[1 1 1])
+subplot(2,1,2)
+z_line = unique(predict_worst.S_est(:,end),'rows','stable');
+index = [5 10 15 20 25];
+slice_list = z_line(index);
+hold on
+rec = [70 40;170 40;170 110;70 110;70 40];
+for i=1:size(slice_list,1)
+	ix = find(predict_worst.S_est(:,3)==slice_list(i));
+	xy = predict_worst.S_est(ix,1:2);
+	xy = boundary_select(xy);
+	z = slice_list(i)*ones(size(xy,1),1);
+	plot3(xy(:,1),xy(:,2),z,'r-','LineWidth',2);
+	plot3(rec(:,1),rec(:,2),slice_list(i)*ones(size(rec,1),1),'k','LineWidth',1);
+	
+	if (isempty(predict_worst.S_est_up)==0)
+		ix = find(predict_worst.S_est_up(:,3)==slice_list(i));
+		xy = predict_worst.S_est_up(ix,1:2);
+		xy = boundary_select(xy);
+		z = slice_list(i)*ones(size(xy,1),1);
+		plot3(xy(:,1),xy(:,2),z,'b-.','LineWidth',2);
+	end
+	
+	if (isempty(predict_worst.S_est_down)==0)
+		ix = find(predict_worst.S_est_down(:,3)==slice_list(i));
+		xy = predict_worst.S_est_down(ix,1:2);
+		xy = boundary_select(xy);
+		z = slice_list(i)*ones(size(xy,1),1);
+		plot3(xy(:,1),xy(:,2),z,'g--','LineWidth',2);
+	end
+end
+hold off
+set(gca,'Fontsize',16);
+
 
 % --------- Print result to screen
 hold on
