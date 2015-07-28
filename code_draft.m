@@ -390,7 +390,8 @@ set(gca,'Fontsize',16);
 % ---------- Create contour plot include +std and -std (BEST and WORST)
 predict_best = predict(1);
 set(0,'defaultfigurecolor',[1 1 1])
-subplot(2,1,1)
+%subplot(2,1,1)
+figure(1)
 z_line = unique(predict_best.S_est(:,end),'rows','stable');
 index = [5 10 15 20 25];
 slice_list = z_line(index);
@@ -425,7 +426,8 @@ set(gca,'Fontsize',16);
 
 predict_worst = predict(2);
 set(0,'defaultfigurecolor',[1 1 1])
-subplot(2,1,2)
+%subplot(2,1,2)
+figure(2)
 z_line = unique(predict_worst.S_est(:,end),'rows','stable');
 index = [5 10 15 20 25];
 slice_list = z_line(index);

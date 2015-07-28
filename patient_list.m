@@ -91,12 +91,12 @@ else
     Pat_list(1).band_z = 1.1;
     Pat_list(1).band_f = 1;
     
-    Pat_list(2).name = 'PP12';
-    Pat_list(2).numScan = 6;
+    Pat_list(2).name = 'PP10';
+    Pat_list(2).numScan = 4;
     Pat_list(2).band_t = 360;
-    Pat_list(2).band_x = 1.1;
-    Pat_list(2).band_y = 1.1;
-    Pat_list(2).band_z = 1.1;
+    Pat_list(2).band_x = 0.9;
+    Pat_list(2).band_y = 0.9;
+    Pat_list(2).band_z = 0.9;
     Pat_list(2).band_f = 1;
     
 %     Pat_list(1).name = 'JJ';
