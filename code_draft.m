@@ -499,8 +499,30 @@ set(gca,'FontSize',16);
 
 
 
-% -----------
-
-
+% ----------- Plot linear fit and print out R^2
+hold on
+for i=1:size(predict,2)
+	x(i) = Pat_list(i).numScan;
+	y(i) = predict(i).Haus_dist;
+	plot(Pat_list(i).numScan,predict(i).Haus_dist,'ks','LineWidth',2);
+	text(Pat_list(i).numScan+0.2,predict(i).Haus_dist+0.2,Pat_list(i).name(2:end));
+end
+p = polyfit(x,y,1);
+yfit =  p(1) * x + p(2);
+yresid = y - yfit;
+SSresid = sum(yresid.^2);
+SStotal = (length(y)-1) * var(y);
+rsq = 1 - SSresid/SStotal;
+t = 0:1:8;
+yplot = p(1)*t + p(2);
+std_error = sqrt(SSresid/length(y));
+fprintf('R square: %.3f\n',rsq);
+fprintf('Standard Error: %.3f\n',std_error);
+plot(t,yplot,'k','LineWidth',2);
+xlim([2 8]);
+xlabel('Number of scans','FontSize',14);
+ylabel('Hausdoff distance','FontSize',14);
+box on
+set(gca,'FontSize',16);
 
 
