@@ -2,7 +2,7 @@ function out = patient_process_1(pat_info,option)
 
 fprintf('Progressing patient %s...\n',pat_info.name);
 
-mul_std = 1.645; % 1.645: 90% confidence interval   0.3 1.96: 95% CI
+mul_std = 0.65; % 1.645: 90% confidence interval   0.3 1.96: 95% CI
 
 max_ = [0 0 0];
 min_ = [1000 1000 1000];

@@ -396,7 +396,8 @@ z_line = unique(predict_best.S_est(:,end),'rows','stable');
 index = [5 10 15 20 25];
 slice_list = z_line(index);
 hold on
-rec = [70 40;170 40;170 110;70 110;70 40];
+
+rec = [70 30;140 30;140 90;70 90;70 30];
 for i=1:size(slice_list,1)
 	ix = find(predict_best.S_est(:,3)==slice_list(i));
 	xy = predict_best.S_est(ix,1:2);
@@ -422,7 +423,11 @@ for i=1:size(slice_list,1)
 	end
 end
 hold off
+xlabel('(mm)','FontSize',14);
+ylabel('(mm)','FontSize',14);
+zlabel('(mm)','FontSize',14);
 set(gca,'Fontsize',16);
+
 
 predict_worst = predict(2);
 set(0,'defaultfigurecolor',[1 1 1])
@@ -458,7 +463,14 @@ for i=1:size(slice_list,1)
 	end
 end
 hold off
+xlabel('(mm)','FontSize',14);
+ylabel('(mm)','FontSize',14);
+zlabel('(mm)','FontSize',14);
 set(gca,'Fontsize',16);
+
+
+
+
 
 
 % --------- Print result to screen
@@ -480,8 +492,8 @@ end
 fprintf('Mean of Haus dist: %f\n',mean(error));
 fprintf('Std of Haus dist: %f\n',sqrt(var(error)));
 xlim([2 8]);
-xlabel('No of scans');
-ylabel('Hausdoff distance');
+xlabel('Number of scans','FontSize',14);
+ylabel('Hausdoff distance','FontSize',14);
 box on
 set(gca,'FontSize',16);
 
