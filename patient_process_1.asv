@@ -2,7 +2,7 @@ function out = patient_process_1(pat_info,option)
 
 fprintf('Progressing patient %s...\n',pat_info.name);
 
-mul_std = 0.65; % 1.645: 90% confidence interval   0.3 1.96: 95% CI
+mul_std = 1.645; % 1.645: 90% confidence interval   0.3 1.96: 95% CI
 
 max_ = [0 0 0];
 min_ = [1000 1000 1000];
@@ -159,7 +159,7 @@ out.std_hyp = exp(hyp.cov);
 Grid_train = [time_line(pat_info.numScan-1)*ones(size(S_temp,1),1) S_temp];
 %[est_train, var_train] = gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
 [est_train, var_train] =...
-    gaussian_process(hyp, covfunc,meanfunc, X_train,y_train,Grid_train);
+    gp(hyp, @infExact,meanfunc,covfunc,likfunc,X_train,y_train,Grid_train);
 
 [thres_train_min,Haus_min,~] = thresCal(pat_info.name,est_train,...
                                                  S_validate,S_temp,option,0);
@@ -172,9 +172,7 @@ out.thres_train = thres_train_min;
 fprintf('\nPredicting ...\n');
 
 Grid_test = [time_line(pat_info.numScan)*ones(size(S_temp,1),1) S_temp];
-%[est_test,var_test] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
-[est_test,var_test] = ...
-    gaussian_process(hyp, covfunc, meanfunc, X_test, y_test, Grid_test);
+[est_test,var_test] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, X_test, y_test, Grid_test);
 
 est_test_up = est_test+mul_std*sqrt(var_test);
 est_test_down = est_test-mul_std*sqrt(var_test);
