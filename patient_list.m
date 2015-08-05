@@ -1,5 +1,5 @@
 function Pat_list = patient_list()
-mode = 1; % 0: run all 1: test one patient
+mode = 0; % 0: run all 1: test one patient
 
 if (mode==0)
     Pat_list(1).name = 'BB';

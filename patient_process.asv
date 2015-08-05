@@ -127,8 +127,7 @@ z_mesh = linspace(z_min,z_max,option.gridsize);
 [S1,S2,S3] = meshgrid(x_mesh,y_mesh,z_mesh); % [middle shortest longest]
 S_temp = [S1(:),S2(:),S3(:)];
 
-%covfunc  = @covSEard;
-covfunc  = {'covSum', {'covSEard','covNoise'}};
+covfunc  = @covSEard;
 likfunc  = @likGauss;
 
 meanfunc = @meanOne;
@@ -145,8 +144,7 @@ else
     hyp.cov(4) = log(pat_info.band_z);
 end
 hyp.cov(5) = log(pat_info.band_f);   % \sig_f
-hyp.cov(6) = log(0.01);              % \sig_w: measurement noise
-hyp.lik = log(0.03);                 % initial prior probability for hyper p(\theta)
+hyp.lik = log(0.03);
 
 %% --- Find optimal hyper-parameters from initial guess
 
@@ -213,8 +211,7 @@ end
 out.S_est = surface_refiner(S_test_est);
 out.S_true = S_true;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);
-out.var_train = var_train;
-out.var_test = var_test;
+
 
 
 
