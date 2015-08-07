@@ -8,7 +8,7 @@ addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
 ifPlot = 0;
-Pat_list = patient_list();
+Pat_list = patient_list('PP10',1);
 option = Configuration();
 
 for i=1:size(Pat_list,2)
