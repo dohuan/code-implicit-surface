@@ -8,12 +8,18 @@ addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
 ifPlot = 0;
-Pat_list = patient_list('PP10',1);
+%Pat_list = patient_list('PP10',1);
+Pat_list = patient_list([],0);
 option = Configuration();
 
 for i=1:size(Pat_list,2)
-	predict(i) = patient_process(Pat_list(i),option);
+    predict = patient_process(Pat_list(i),option);
     %predict(i) = patient_process_1(Pat_list(i),option);
+    c = clock;
+    saveFile = ['./results/' Pat_list(i).name '_' num2str(c(1)) ...
+        num2str(c(2)) num2str(c(3)) '_' num2str(c(4)) num2str(c(5))];
+    save(saveFile);
+    clear predict
 end
 
 if (ifPlot==1)
@@ -29,12 +35,12 @@ if (ifPlot==1)
         scatter3(predict(i).S_true(:,1),predict(i).S_true(:,2),predict(i).S_true(:,3));
         title('True');
     end
+    for i=1:size(Pat_list,2)
+        fprintf('Estimated time bandwith of patient %s: %.2f\n',Pat_list(i).name,predict(i).band_t);
+        fprintf('Haus distance of patient %s: %.2f\n',Pat_list(i).name,predict(i).Haus_dist);
+    end
 end
 
-for i=1:size(Pat_list,2)
-    fprintf('Estimated time bandwith of patient %s: %.2f\n',Pat_list(i).name,predict(i).band_t);
-    fprintf('Haus distance of patient %s: %.2f\n',Pat_list(i).name,predict(i).Haus_dist);
-end
 time_run = toc;
 fprintf('\nRun time: %.2f minutes',time_run/60);
 
