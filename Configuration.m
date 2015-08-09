@@ -16,4 +16,6 @@ function option = Configuration()
     option.num_worker = 10;
     
     option.ifStand = 1; % 0: not standardize data, 1: standardize data
+    
+    option.CB_run = 3; % number of MC run for credible band
 end

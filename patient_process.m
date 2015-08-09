@@ -145,7 +145,7 @@ else
     hyp.cov(4) = log(pat_info.band_z);
 end
 hyp.cov(5) = log(pat_info.band_f);   % \sig_f
-hyp.cov(6) = log(0.01);              % \sig_w: measurement noise
+hyp.cov(6) = log(0.05);              % \sig_w: measurement noise .01
 hyp.lik = log(0.03);                 % initial prior probability for hyper p(\theta)
 
 %% --- Find optimal hyper-parameters from initial guess
@@ -189,12 +189,22 @@ out.est_test = est_test;
 out.thres_test = thres_test_min;
 
 
+%% generate credible band
+CB = mvnrnd(est_test,var_test,option.CB_run);
+for i=1:option.CB_run
+    [temp,~] = bin_search(est_train,CB(i,:)',thres_train_min,S_temp,option,0);
+    out.CB{i} = temp;
+end
+
 
 if (option.ifStand == 1)
 %%                  Convert 3-D model to unstandardized coordinates
     for i=1:3
         S_test_est(:,i) = S_test_est(:,i).*std_info(i+1).std + std_info(i+1).mean;
         S_true(:,i) = S_true(:,i).*std_info(i+1).std + std_info(i+1).mean;
+        for j=1:option.CB_run
+            out.CB{j}(:,i) = out.CB{j}(:,i).*std_info(i+1).std + std_info(i+1).mean;
+        end
     end
     out.band_t = exp(hyp.cov(1))*std_info(1).std;
     out.band_x = exp(hyp.cov(2))*std_info(2).std;
@@ -215,6 +225,5 @@ out.S_true = S_true;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);
 out.var_train = var_train;
 out.var_test = var_test;
-
 
 

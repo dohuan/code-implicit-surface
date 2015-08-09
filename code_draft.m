@@ -525,4 +525,29 @@ ylabel('Hausdoff distance','FontSize',14);
 box on
 set(gca,'FontSize',16);
 
+% --------- check symmetric problem due to numerical floating error ---------
+temp = predict.var_test-predict.var_test';
+count = 1;
+for i=1:size(temp,1)
+	for j=1:size(temp,2)
+		if (temp(i,j)~=0)
+			a(count) = temp(i,j);
+			count = count + 1;
+		end
+	end
+end
+
+for i=1:size(predict.var_test,1)
+	for j=1:size(predict.var_test,2)
+		Sig(i,j) = round(predict.var_test(i,j)*1e5)/1e5;
+	end
+end
+
+
+% ----------
+hold on
+scatter3(predict.S_true(:,1),predict.S_true(:,2),predict.S_true(:,3),'k+');
+scatter3(predict.CB{1}(:,1),predict.CB{1}(:,2),predict.CB{1}(:,3),'b*');
+scatter3(predict.CB{2}(:,1),predict.CB{2}(:,2),predict.CB{2}(:,3),'ro');
+scatter3(predict.CB{3}(:,1),predict.CB{3}(:,2),predict.CB{3}(:,3),'gx');
 
