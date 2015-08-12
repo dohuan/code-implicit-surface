@@ -192,7 +192,13 @@ out.thres_test = thres_test_min;
 %% generate credible band
 CB = mvnrnd(est_test,var_test,option.CB_run);
 for i=1:option.CB_run
-    [temp,~] = bin_search(est_train,CB(i,:)',thres_train_min,S_temp,option,0);
+    %[temp,~] = bin_search(est_train,CB(i,:)',thres_train_min,S_temp,option,0);
+    temp = [];
+    for j=1:size(CB(i,:),2)
+        if (CB(i,j)>=0&&CB(i,j)<=thres_test_min)
+            temp = [temp;S_temp(j,:)];
+        end
+    end
     out.CB{i} = temp;
 end
 
@@ -220,6 +226,9 @@ else
 end
 
 % Refine the surface as post-processing
+for i=1:option.CB_run
+    out.CB{i} = surface_refiner(out.CB{i});
+end
 out.S_est = surface_refiner(S_test_est);
 out.S_true = S_true;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);
