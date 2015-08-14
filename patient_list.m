@@ -49,7 +49,7 @@ Pat_list(4).band_y = 1.1;
 Pat_list(4).band_z = 1.1;
 Pat_list(4).band_f = 1;
 
-Pat_list(5).name = 'PP10';
+Pat_list(5).name = 'P0';
 Pat_list(5).numScan = 4;
 Pat_list(5).band_t = 360;
 Pat_list(5).band_x = 0.9;
@@ -57,7 +57,7 @@ Pat_list(5).band_y = 0.9;
 Pat_list(5).band_z = 0.9;
 Pat_list(5).band_f = 1;
 
-Pat_list(6).name = 'PP12';
+Pat_list(6).name = 'P2';
 Pat_list(6).numScan = 6;
 Pat_list(6).band_t = 360;
 Pat_list(6).band_x = 1.1;
@@ -65,7 +65,7 @@ Pat_list(6).band_y = 1.1;
 Pat_list(6).band_z = 1.1;
 Pat_list(6).band_f = 1;
 
-Pat_list(7).name = 'PP13';
+Pat_list(7).name = 'P3';
 Pat_list(7).numScan = 4;
 Pat_list(7).band_t = 360;
 Pat_list(7).band_x = 1.1;

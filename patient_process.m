@@ -145,7 +145,7 @@ else
     hyp.cov(4) = log(pat_info.band_z);
 end
 hyp.cov(5) = log(pat_info.band_f);   % \sig_f
-hyp.cov(6) = log(0.05);              % \sig_w: measurement noise .01
+hyp.cov(6) = log(0.05);              % \sig_w: measurement noise .05
 hyp.lik = log(0.03);                 % initial prior probability for hyper p(\theta)
 
 %% --- Find optimal hyper-parameters from initial guess
@@ -226,9 +226,9 @@ else
 end
 
 % Refine the surface as post-processing
-for i=1:option.CB_run
-    out.CB{i} = surface_refiner(out.CB{i});
-end
+% for i=1:option.CB_run
+%     out.CB{i} = surface_refiner(out.CB{i});
+% end
 out.S_est = surface_refiner(S_test_est);
 out.S_true = S_true;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);

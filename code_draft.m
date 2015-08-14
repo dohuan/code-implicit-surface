@@ -551,3 +551,11 @@ scatter3(predict.CB{1}(:,1),predict.CB{1}(:,2),predict.CB{1}(:,3),'b*');
 scatter3(predict.CB{2}(:,1),predict.CB{2}(:,2),predict.CB{2}(:,3),'ro');
 scatter3(predict.CB{3}(:,1),predict.CB{3}(:,2),predict.CB{3}(:,3),'gx');
 
+% ---------- Plot true cloud along with credible band clouds
+hold on
+scatter3(predict.S_true(:,1),predict.S_true(:,2),predict.S_true(:,3),'k+');
+for i=1:size(predict.CB,2)
+	scatter3(predict.CB{i}(:,1),predict.CB{i}(:,2),predict.CB{i}(:,3),'b.');
+	%alpha(h,.5);
+end
+hold off

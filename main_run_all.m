@@ -8,25 +8,37 @@ addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
 ifPlot = 0;
-Pat_list = patient_list([],0);
-%Pat_list = patient_list('JJ',1);
+ifSave = 0;
+%Pat_list = patient_list([],0);
+Pat_list = patient_list('P2',1);
 option = Configuration();
 
+if (ifSave==1)
+    c = clock;
+    folderName = ['./results/' num2str(c(1)) ...
+        num2str(c(2)) num2str(c(3)) '_' num2str(c(4)) num2str(c(5)) '/'];
+    mkdir(folderName);
 
+    plySaveFolder = ['./results/PLY' num2str(c(1)) ...
+            num2str(c(2)) num2str(c(3)) '_' num2str(c(4)) num2str(c(5)) '/'];
+    mkdir(plySaveFolder);
+end
 for i=1:size(Pat_list,2)
     predict = patient_process(Pat_list(i),option);
     %predict(i) = patient_process_1(Pat_list(i),option);
-    c = clock;
-    saveFile = ['./results/' Pat_list(i).name '_' num2str(c(1)) ...
-        num2str(c(2)) num2str(c(3)) '_' num2str(c(4)) num2str(c(5))];
-    save(saveFile);
-    % --- Export to PLY files
-    for j=1:option.CB_run
-        plySave = ['./results/PLY/' Pat_list(i).name '_'  num2str(j) '.ply'];
-        exportMesh(predict(i).CB{j},plySave);
-    end
     
-    %clear predict
+    if (ifSave==1)
+        saveFile = [folderName Pat_list(i).name];
+        save(saveFile);
+
+        % --- Export to PLY files
+        for j=1:option.CB_run
+            plySave = [plySaveFolder Pat_list(i).name '_'  num2str(j) '.ply'];
+            exportMesh(predict.CB{j},plySave);
+        end
+
+        clear predict
+    end
 end
 
 if (ifPlot==1)
