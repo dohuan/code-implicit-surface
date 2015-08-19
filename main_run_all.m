@@ -10,7 +10,7 @@ addpath(genpath('./HausdorffDist'))
 ifPlot = 0;
 ifSave = 0;
 %Pat_list = patient_list([],0);
-Pat_list = patient_list('II',1);
+Pat_list = patient_list('P3',1);
 option = Configuration();
 
 if (ifSave==1)

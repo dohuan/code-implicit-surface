@@ -150,7 +150,7 @@ hyp.lik = log(0.03);                 % initial prior probability for hyper p(\th
 
 %% --- Find optimal hyper-parameters from initial guess
 
-hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+hyp = minimize(hyp, @gp, 1, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
 
 out.std_hyp = exp(hyp.cov);
 %%                  Do greedy search for threshold value
