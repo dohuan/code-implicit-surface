@@ -559,3 +559,6 @@ for i=1:size(predict.CB,2)
 	%alpha(h,.5);
 end
 hold off
+
+% ------- Plot diagonal of the test covariance matrix
+plot(diag(predict.var_test));
