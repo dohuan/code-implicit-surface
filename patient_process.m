@@ -138,6 +138,8 @@ if (option.ifStand == 1)
     hyp.cov(2) = log(abs((pat_info.band_x)/std_info(2).std));   % bandwidth of x
     hyp.cov(3) = log(abs((pat_info.band_y)/std_info(3).std));   % bandwidth of y
     hyp.cov(4) = log(abs((pat_info.band_z)/std_info(4).std));  % bandwidth of z
+    
+    
 else
     hyp.cov(1) = log(pat_info.band_t);
     hyp.cov(2) = log(pat_info.band_x);
@@ -146,11 +148,17 @@ else
 end
 hyp.cov(5) = log(pat_info.band_f);   % \sig_f
 hyp.cov(6) = log(0.05);              % \sig_w: measurement noise .05
-hyp.lik = log(0.03);                 % initial prior probability for hyper p(\theta)
+hyp.lik = log(0.01);                 % initial prior probability for hyper p(\theta) 0.03
 
 %% --- Find optimal hyper-parameters from initial guess
 
-hyp = minimize(hyp, @gp, 1, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+%a = -20;
+hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+%hyp1 = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+%hyp2 = minimize(hyp, @gp, a, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
+
+%hyp1
+%hyp2
 
 out.std_hyp = exp(hyp.cov);
 %%                  Do greedy search for threshold value
