@@ -500,6 +500,13 @@ set(gca,'FontSize',16);
 
 
 % ----------- Plot linear fit and print out R^2
+Pat_list = patient_list([],0);
+saveFile = './results/2015820_212(final)/';
+for i=1:size(Pat_list,2)
+	M = load([saveFile Pat_list(i).name]); 
+	predict(i).Haus_dist = M.predict.Haus_dist;
+	clear M;
+end
 hold on
 for i=1:size(predict,2)
 	x(i) = Pat_list(i).numScan;
@@ -524,6 +531,50 @@ xlabel('Number of scans','FontSize',14);
 ylabel('Hausdoff distance','FontSize',14);
 box on
 set(gca,'FontSize',16);
+
+
+
+% --------- Plot Haus dist vs. std of scanning periods
+time_data = xlsread('./Patient_Data/Dt_patients_truncated.xlsx','Sheet1');
+count = 1;
+Pat_list = patient_list([],0);
+saveFile = './results/2015820_212(final)/';
+hold on
+for i=1:size(Pat_list,2)
+	M = load([saveFile Pat_list(i).name]); 
+	predict(i).Haus_dist = M.predict.Haus_dist;
+	clear M;
+	for j=1:Pat_list(i).numScan
+		var_temp(j) = time_data(count,1);
+		count = count + 1;
+	end
+	predict(i).var_scan = sqrt(var(var_temp));
+	% --- Plot
+	plot(predict(i).var_scan,predict(i).Haus_dist,'ks','LineWidth',2);
+	text(predict(i).var_scan+0.2,predict(i).Haus_dist+0.2,Pat_list(i).name);
+	x(i) = predict(i).var_scan;
+	y(i) = predict(i).Haus_dist;
+end
+p = polyfit(x,y,1);
+yfit =  p(1) * x + p(2);
+yresid = y - yfit;
+SSresid = sum(yresid.^2);
+SStotal = (length(y)-1) * var(y);
+rsq = 1 - SSresid/SStotal;
+t = min(x):1:max(x);
+yplot = p(1)*t + p(2);
+std_error = sqrt(SSresid/length(y));
+fprintf('R square: %.3f\n',rsq);
+fprintf('Standard Error: %.3f\n',std_error);
+plot(t,yplot,'k','LineWidth',2);
+xlim([2 8]);
+xlabel('std of scan periods','FontSize',14);
+ylabel('Hausdoff distance','FontSize',14);
+box on
+set(gca,'FontSize',16);
+hold off
+
+
 
 % --------- check symmetric problem due to numerical floating error ---------
 temp = predict.var_test-predict.var_test';
@@ -562,3 +613,37 @@ hold off
 
 % ------- Plot diagonal of the test covariance matrix
 plot(diag(predict.var_test));
+
+% --------------------------
+change_name('P01');
+change_name('P02');
+change_name('P03');
+change_name('P04');
+change_name('P11');
+change_name('P12');
+change_name('P14');
+change_name('P15');
+change_name('P21');
+change_name('P22');
+change_name('P23');
+change_name('P24');
+change_name('P25');
+change_name('P26');
+change_name('P31');
+change_name('P32');
+change_name('P33');
+change_name('P34');
+change_name('P41');
+change_name('P42');
+change_name('P43');
+
+
+% ---------- Check scan of patient H
+for i=1:7
+	figure(i);
+	dix = (i-1)*1000 + 1;
+	uix = i*1000;
+	scatter3(X(dix:uix,2),X(dix:uix,3),X(dix:uix,4));
+end
+
+

@@ -10,7 +10,8 @@ X = [];
 y = [];
 
 %timesize = pat_info.numScan-1; % last scan for prediction
-data_path = './Patient_Data/HPCC_data/';
+%data_path = './Patient_Data/HPCC_data/';
+data_path = './Patient_Data/truncated_data/';
 out.name = pat_info.name;
 for i=1:pat_info.numScan
     
@@ -38,9 +39,13 @@ for i=1:pat_info.numScan
         min_(3) = min_temp(3);
     end
     if (option.pts_mode==0)
-        index = randperm(size(data.on_surface,1));
-        X_temp = data.on_surface(index(1:option.cutoff),1:3);
-        y_temp = data.on_surface(index(1:option.cutoff),end);
+%         index = randperm(size(data.on_surface,1));
+%         X_temp = data.on_surface(index(1:option.cutoff),1:3);
+%         y_temp = data.on_surface(index(1:option.cutoff),end);
+        
+        X_temp = data.on_surface(:,1:3);
+        y_temp = data.on_surface(:,end);
+        
         time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
         % --- Update X and y
         X = [X;[time_temp X_temp]];
@@ -50,12 +55,13 @@ for i=1:pat_info.numScan
         min_inner = min(data.inner_line(:,end));
         max_inner = max(data.inner_line(:,end));
         inner_temp = (data.inner_line(:,end)-max_inner)/(max_inner-min_inner);
-        %inner_temp = inner_temp*option.edgeLimit;
-        %inner_temp = data.inner_line(:,end);
         
-        index = randperm(size(data.on_surface,1));
-        X_temp = data.on_surface(index(1:option.cutoff),1:3);
-        y_temp = data.on_surface(index(1:option.cutoff),end);
+        %index = randperm(size(data.on_surface,1));
+        %X_temp = data.on_surface(index(1:option.cutoff),1:3);
+        %y_temp = data.on_surface(index(1:option.cutoff),end);
+        X_temp = data.on_surface(:,1:3);
+        y_temp = data.on_surface(:,end);
+        
         X_temp = [X_temp;data.inner_line(:,1:3)];
         y_temp = [y_temp;inner_temp];
         time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
@@ -120,7 +126,6 @@ else
     z_min = min_(3);
 end
 
-
 x_mesh = linspace(x_min,x_max,option.gridsize);
 y_mesh = linspace(y_min,y_max,option.gridsize);
 z_mesh = linspace(z_min,z_max,option.gridsize);
@@ -148,17 +153,11 @@ else
 end
 hyp.cov(5) = log(pat_info.band_f);   % \sig_f
 hyp.cov(6) = log(0.05);              % \sig_w: measurement noise .05
-hyp.lik = log(0.01);                 % initial prior probability for hyper p(\theta) 0.03
+hyp.lik = log(0.05);                 % initial prior probability for hyper p(\theta) 0.03
 
 %% --- Find optimal hyper-parameters from initial guess
 
-%a = -20;
 hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
-%hyp1 = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
-%hyp2 = minimize(hyp, @gp, a, @infExact, meanfunc, covfunc, likfunc, X_train, y_train);
-
-%hyp1
-%hyp2
 
 out.std_hyp = exp(hyp.cov);
 %%                  Do greedy search for threshold value
