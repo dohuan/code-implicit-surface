@@ -18,6 +18,7 @@ function Pat_list = patient_list(pat_name, mode)
 % Pat_list(2).band_f = 1;
 
 Pat_list(1).name = 'HH';
+Pat_list(1).ID = 'H';
 Pat_list(1).numScan = 7; %7
 Pat_list(1).band_t = 500;
 Pat_list(1).band_x = 1.05; % 1.0
@@ -26,6 +27,7 @@ Pat_list(1).band_z = 1.05; % 1.0
 Pat_list(1).band_f = 0.95; % 0.9
 
 Pat_list(2).name = 'II';
+Pat_list(2).ID = 'I';
 Pat_list(2).numScan = 6;
 Pat_list(2).band_t = 360;
 Pat_list(2).band_x = 1.0;
@@ -34,6 +36,7 @@ Pat_list(2).band_z = 1.0;
 Pat_list(2).band_f = 0.9;
 
 Pat_list(3).name = 'JJ';
+Pat_list(3).ID = 'J';
 Pat_list(3).numScan = 5;
 Pat_list(3).band_t = 360;
 Pat_list(3).band_x = 1.0;
@@ -42,6 +45,7 @@ Pat_list(3).band_z = 1.0;
 Pat_list(3).band_f = 0.95;
 
 Pat_list(4).name = 'KK';
+Pat_list(4).ID = 'K';
 Pat_list(4).numScan = 5;
 Pat_list(4).band_t = 360;
 Pat_list(4).band_x = 1.0; % 1.0 1.1 .95 .8 1.2
@@ -50,6 +54,7 @@ Pat_list(4).band_z = 1.0;
 Pat_list(4).band_f = 0.9;
 
 Pat_list(5).name = 'P0';
+Pat_list(5).ID = 'P0';
 Pat_list(5).numScan = 4;
 Pat_list(5).band_t = 360;
 Pat_list(5).band_x = 0.9;
@@ -58,6 +63,7 @@ Pat_list(5).band_z = 0.9;
 Pat_list(5).band_f = 1;
 
 Pat_list(6).name = 'P2';
+Pat_list(6).ID = 'P2';
 Pat_list(6).numScan = 6;
 Pat_list(6).band_t = 360;
 Pat_list(6).band_x = 1.0;
@@ -66,6 +72,7 @@ Pat_list(6).band_z = 1.0;
 Pat_list(6).band_f = 0.95;
 
 Pat_list(7).name = 'P3';
+Pat_list(7).ID = 'P3';
 Pat_list(7).numScan = 4;
 Pat_list(7).band_t = 360;
 Pat_list(7).band_x = 1.0; % 1.1

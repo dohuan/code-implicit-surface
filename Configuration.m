@@ -17,5 +17,5 @@ function option = Configuration()
     
     option.ifStand = 1; % 0: not standardize data, 1: standardize data
     
-    option.CB_run = 20; % number of MC run for credible band
+    option.CB_run = 100; % number of MC run for credible band
 end

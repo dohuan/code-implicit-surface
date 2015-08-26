@@ -501,7 +501,7 @@ set(gca,'FontSize',16);
 
 % ----------- Plot linear fit and print out R^2
 Pat_list = patient_list([],0);
-saveFile = './results/2015820_212(final)/';
+saveFile = './results/2015821_1614(final)/';
 for i=1:size(Pat_list,2)
 	M = load([saveFile Pat_list(i).name]); 
 	predict(i).Haus_dist = M.predict.Haus_dist;
@@ -512,7 +512,7 @@ for i=1:size(predict,2)
 	x(i) = Pat_list(i).numScan;
 	y(i) = predict(i).Haus_dist;
 	plot(Pat_list(i).numScan,predict(i).Haus_dist,'ks','LineWidth',2);
-	text(Pat_list(i).numScan+0.2,predict(i).Haus_dist+0.2,Pat_list(i).name(2:end));
+	text(Pat_list(i).numScan+0.2,predict(i).Haus_dist+0.2,Pat_list(i).ID);
 end
 p = polyfit(x,y,1);
 yfit =  p(1) * x + p(2);
@@ -538,7 +538,7 @@ set(gca,'FontSize',16);
 time_data = xlsread('./Patient_Data/Dt_patients_truncated.xlsx','Sheet1');
 count = 1;
 Pat_list = patient_list([],0);
-saveFile = './results/2015820_212(final)/';
+saveFile = './results/2015821_1614(final)/';
 hold on
 for i=1:size(Pat_list,2)
 	M = load([saveFile Pat_list(i).name]); 
