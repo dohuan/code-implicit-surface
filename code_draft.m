@@ -501,7 +501,7 @@ set(gca,'FontSize',16);
 
 % ----------- Plot linear fit and print out R^2
 Pat_list = patient_list([],0);
-saveFile = './results/2015821_1614(final)/';
+saveFile = './results/2015824_1142(final)/';
 for i=1:size(Pat_list,2)
 	M = load([saveFile Pat_list(i).name]); 
 	predict(i).Haus_dist = M.predict.Haus_dist;
@@ -538,7 +538,7 @@ set(gca,'FontSize',16);
 time_data = xlsread('./Patient_Data/Dt_patients_truncated.xlsx','Sheet1');
 count = 1;
 Pat_list = patient_list([],0);
-saveFile = './results/2015821_1614(final)/';
+saveFile = './results/2015824_1142(final)/';
 hold on
 for i=1:size(Pat_list,2)
 	M = load([saveFile Pat_list(i).name]); 
@@ -646,4 +646,24 @@ for i=1:7
 	scatter3(X(dix:uix,2),X(dix:uix,3),X(dix:uix,4));
 end
 
-
+% ------------ Plot times between scans
+time_data = xlsread('./Patient_Data/Dt_patients_truncated.xlsx','Sheet1');
+time_data = time_data(:,5);
+numScan = [7 6 5 5 4 6 4];
+mark = {'bd-' 'rs-' 'gv-' 'c^-' 'mp-' 'k+-' 'yo-'};
+hold on
+count = 1;
+temp = [];
+for i=1:7
+	clear temp;
+	for j=1:numScan(i)
+		temp(j,1) = time_data(count);
+		count = count + 1;
+	end
+	plot(temp,mark{i},'MarkerSize',10,'LineWidth',1.5);
+end
+legend('H','I','J','K','P10','P12','P13');
+box on
+xlabel('Scan','FontSize',16);
+ylabel('Scan Time (days)','FontSize',16);
+set(gca,'FontSize',16);
