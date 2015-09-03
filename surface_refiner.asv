@@ -57,9 +57,7 @@ if (isempty(points)==0)
                 out = [out;[xy_temp z_temp]];
             end
         else
-            xy_temp = boundary_select(pts(i).xy);
-            z_temp = pts(i).z*ones(size(xy_temp,1),1);
-            out = [out;[xy_temp z_temp]];
+            
         end
     end
 else

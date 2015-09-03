@@ -232,10 +232,10 @@ else
     out.band_f = exp(hyp.cov(5));
 end
 
-% Refine the surface as post-processing
-% for i=1:option.CB_run
-%     out.CB{i} = surface_refiner(out.CB{i});
-% end
+% --- Refine the surface as post-processing
+for i=1:option.CB_run
+    out.CB{i} = surface_refiner(out.CB{i});
+end
 out.S_est = surface_refiner(S_test_est);
 out.S_true = S_true;
 out.Haus_dist = HausdorffDist(S_test_est,S_true);

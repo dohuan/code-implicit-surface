@@ -161,11 +161,17 @@ plot(predict(a).est_train,'b')
 plot([0 7e4],[predict(a).thres_train predict(a).thres_train],'k-')
 
 % --- Plot a slice of 3-D organ
-z_slice = 2000;
-a = 1;
-index_slice = find(predict(a).S_est(:,3)==predict(a).S_est(z_slice,3));
-S_plot = predict(a).S_est(index_slice,:);
-scatter3(S_plot(:,1),S_plot(:,2),S_plot(:,3));
+z_slice = unique(predict.S_est(:,end),'rows','stable');
+for i=1:size(z_slice,1)
+	figure(i);
+	index_slice = find(predict.S_est(:,3)==z_slice(i));
+	%S_plot = predict.S_est(index_slice,:);
+	%scatter3(S_plot(:,1),S_plot(:,2),S_plot(:,3));
+	S_plot = predict.S_est(index_slice,1:2);
+	plot(S_plot(:,1),S_plot(:,2),'bo');
+end
+
+
 
 z_slice = 2000;
 a = 1;

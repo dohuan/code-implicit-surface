@@ -82,6 +82,8 @@ if (ifPlot==1)
 end
 
 time_run = toc;
-fprintf('\nRun time: %.2f minutes',time_run/60);
-
+fprintf('\nRun time: %.2f minutes\n',time_run/60);
+fprintf('Here is the music!\n')
+EndSound = load('handel');
+sound(EndSound.y,EndSound.Fs);
 %save('./results/run_all_071715_local')
