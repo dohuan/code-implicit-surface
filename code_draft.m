@@ -673,3 +673,64 @@ box on
 xlabel('Scan','FontSize',16);
 ylabel('Scan Time (days)','FontSize',16);
 set(gca,'FontSize',16);
+
+
+
+
+% --------------- Read max dia and compute confidence interval
+file_name = './results/max_dia_PCL_onesheet.xlsx';
+confidence_reg(file_name);
+
+
+
+% -------------------
+x = randn(1000,1);                      % Create Data
+%SEM = std(x)/sqrt(length(x));               % Standard Error
+SEM = std(x);               % Standard Error
+ts = tinv([0.025  0.975],length(x)-1);      % T-Score
+CI = mean(x) + ts*SEM;  
+[h,n] = hist(x,100);
+h = h./sum(h);
+bar(n,h);
+hold on
+plot([mean(x) mean(x)],[0 max(h)],'LineWidth',2);
+plot([CI(1) CI(1)],[0 max(h)],':','LineWidth',2);
+plot([CI(2) CI(2)],[0 max(h)],':','LineWidth',2);
+hold off
+psum = 0;
+for j=1:size(n,2)
+	if (n(j)>=CI(1)&&n(j)<=CI(2))
+		psum = psum + h(j);
+	end
+end
+fprintf('Psum is: %.2f\n',psum);
+
+
+
+
+% ----------- Use quantile (90% CI)
+x = randn(1000,1);  
+lowbound = quantile(x,.05);
+highbound = quantile(x,.95);
+CI = [lowbound highbound];
+[h,n] = hist(x,100);
+h = h./sum(h);
+bar(n,h);
+hold on
+plot([mean(x) mean(x)],[0 max(h)],'LineWidth',2);
+plot([CI(1) CI(1)],[0 max(h)],':','LineWidth',2);
+plot([CI(2) CI(2)],[0 max(h)],':','LineWidth',2);
+hold off
+psum = 0;
+for j=1:size(n,2)
+	if (n(j)>=CI(1)&&n(j)<=CI(2))
+		psum = psum + h(j);
+	end
+end
+fprintf('Psum is: %.2f\n',psum);
+
+
+
+
+
+
