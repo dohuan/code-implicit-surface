@@ -18,7 +18,7 @@ max_dia(2).ID = 'I';
 max_dia(3).dia = 24.1952;
 max_dia(3).ID = 'J';
 
-max_dia(4).dia = 30.4629;
+max_dia(4).dia = 28.4296;
 max_dia(4).ID = 'K';
 
 max_dia(5).dia = 23.1243;

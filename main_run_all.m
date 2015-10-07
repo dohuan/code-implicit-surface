@@ -7,10 +7,10 @@ tic
 addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
-ifPlot = 0;
-ifSave = 1;
-Pat_list = patient_list([],0);
-%Pat_list = patient_list('HH',1);
+ifPlot = 1;
+ifSave = 0;
+%Pat_list = patient_list([],0);
+Pat_list = patient_list('HH',1);
 option = Configuration();
 
 if (ifSave==1)
@@ -63,7 +63,7 @@ if (ifSave==1)
 end
 
 if (ifPlot==1)
-    %% Visualize results
+    %% --- Visualize results
     for i=1:size(Pat_list,2)
         fig_name = sprintf('Patient %s',Pat_list(i).name);
         figure('name',fig_name);
@@ -75,6 +75,33 @@ if (ifPlot==1)
         scatter3(predict(i).S_true(:,1),predict(i).S_true(:,2),predict(i).S_true(:,3));
         title('True');
     end
+    
+    % --- Plot cross section views of the TRUE and CB
+    if (size(Pat_list,2)==1)
+        figure('name','cross view')
+        subplot(1,2,1)
+        xlabel('X-Z view')
+        hold on
+        for i=1:option.CB_run
+            h = scatter(predict.CB{i}(:,1),predict.CB{i}(:,3),'filled','SizeData',30);
+            %h = plot(predict.CB{i}(:,1),predict.CB{i}(:,3),'r.','MarkerSize',10);
+            pH = arrayfun(@(x) allchild(x),h);
+            set(pH,'FaceAlpha',.01);
+        end
+        plot(predict.S_true(:,1),predict.S_true(:,3),'r.','MarkerSize',2);
+        hold off
+        
+        subplot(1,2,2)
+        hold on
+        for i=1:option.CB_run
+            h = plot(predict.CB{i}(:,2),predict.CB{i}(:,3),'b.','MarkerSize',2);
+            alpha(h,0.1);
+        end
+        xlabel('Y-Z view')
+        plot(predict.S_true(:,2),predict.S_true(:,3),'r.','MarkerSize',2);
+        hold off
+    end
+    
     for i=1:size(Pat_list,2)
         fprintf('Estimated time bandwith of patient %s: %.2f\n',Pat_list(i).name,predict(i).band_t);
         fprintf('Haus distance of patient %s: %.2f\n',Pat_list(i).name,predict(i).Haus_dist);
