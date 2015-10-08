@@ -20,11 +20,11 @@ function Pat_list = patient_list(pat_name, mode)
 Pat_list(1).name = 'HH';
 Pat_list(1).ID = 'H';
 Pat_list(1).numScan = 7; %7
-Pat_list(1).band_t = 500;
-Pat_list(1).band_x = 1.05; % 1.0
-Pat_list(1).band_y = 1.05; % 1.0
-Pat_list(1).band_z = 1.05; % 1.0
-Pat_list(1).band_f = 0.95; % 0.9
+Pat_list(1).band_t = 100; %
+Pat_list(1).band_x = 1.05; % 1.05
+Pat_list(1).band_y = 1.05; % 1.05
+Pat_list(1).band_z = 1.05; % 1.05
+Pat_list(1).band_f = 0.95; % 0.95
 
 Pat_list(2).name = 'II';
 Pat_list(2).ID = 'I';
