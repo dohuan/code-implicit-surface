@@ -64,7 +64,9 @@ for i=1:size(name_list,2)
     %plot([mean(temp) mean(temp)],[0 max(h)],'r-','LineWidth',2);
     plot([CI(1) CI(1)],[0 max(h)],'r:','LineWidth',2);
     plot([CI(2) CI(2)],[0 max(h)],'r:','LineWidth',2);
+    
     plot([max_dia(i).dia max_dia(i).dia],[0 max(h)],'r-','LineWidth',2);
+    
     hold off
     axis tight
     box on

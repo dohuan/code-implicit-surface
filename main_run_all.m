@@ -11,7 +11,7 @@ addpath(genpath('./HausdorffDist'))
 ifPlot = 1;
 ifSave = 0;
 %Pat_list = patient_list([],0);
-Pat_list = patient_list('HH',1);
+Pat_list = patient_list('JJ',1);
 option = Configuration();
 
 if (ifSave==1)
@@ -85,21 +85,21 @@ if (ifPlot==1)
         hold on
         for i=1:option.CB_run
             %h = scatter(predict.CB{i}(:,1),predict.CB{i}(:,3),'filled','SizeData',30);
-            plot(predict.CB{i}(:,1),predict.CB{i}(:,3),'b.','MarkerSize',4);
+            plot(predict.CB{i}(:,1),predict.CB{i}(:,3),'b.','MarkerSize',5);
             %pH = arrayfun(@(x) allchild(x),h);
             %set(pH,'FaceAlpha',.01);
         end
-        plot(predict.S_true(:,1),predict.S_true(:,3),'r.','MarkerSize',4);
+        plot(predict.S_true(:,1),predict.S_true(:,3),'r.','MarkerSize',5);
         hold off
         
         subplot(1,2,2)
         hold on
         for i=1:option.CB_run
-            plot(predict.CB{i}(:,2),predict.CB{i}(:,3),'b.','MarkerSize',4);
+            plot(predict.CB{i}(:,2),predict.CB{i}(:,3),'b.','MarkerSize',5);
             %alpha(h,0.1);
         end
         xlabel('Y-Z view')
-        plot(predict.S_true(:,2),predict.S_true(:,3),'r.','MarkerSize',4);
+        plot(predict.S_true(:,2),predict.S_true(:,3),'r.','MarkerSize',5);
         hold off
         
         % --- Plot side views of TRUE and MEAN
@@ -107,15 +107,15 @@ if (ifPlot==1)
         subplot(1,2,1)
         xlabel('X-Z view')
         hold on
-        plot(predict.S_true(:,1),predict.S_true(:,3),'r.','MarkerSize',4);
-        plot(predict.S_est(:,1),predict.S_est(:,3),'b.','MarkerSize',4);
+        plot(predict.S_true(:,1),predict.S_true(:,3),'r.','MarkerSize',5);
+        plot(predict.S_est(:,1),predict.S_est(:,3),'b.','MarkerSize',5);
         hold off
         
         subplot(1,2,2)
         xlabel('Y-Z view')
         hold on
-        plot(predict.S_true(:,2),predict.S_true(:,3),'r.','MarkerSize',4);
-        plot(predict.S_est(:,2),predict.S_est(:,3),'b.','MarkerSize',4);
+        plot(predict.S_true(:,2),predict.S_true(:,3),'r.','MarkerSize',5);
+        plot(predict.S_est(:,2),predict.S_est(:,3),'b.','MarkerSize',5);
         hold off
     end
     
