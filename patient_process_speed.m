@@ -46,7 +46,8 @@ for i=1:pat_info.numScan
     X_all = [X_all; GPIS(i).X];
     time_all = [time_all;GPIS(i).scantime];
 end
-
+time_info.max = max(time_all);
+time_info.min = min(time_all);
 clear data
 if (option.ifStand==1)
     std_info(1).mean = mean(X_all(:,1));     
@@ -92,10 +93,12 @@ z_mesh = linspace(z_min,z_max,option.gridsize);
 [S1,S2,S3] = meshgrid(x_mesh,y_mesh,z_mesh); % [middle shortest longest]
 spatial_grid = [S1(:),S2(:),S3(:)];
 
-% --- Compute GPIS
-for i=1:pat_info.numScan
-    GPIS(i) = compute_GPIS_spatial(GPIS(i), spatial_grid, pat_info, std_info,option);
+% ===== Compute GPIS ======
+
+for t=2:pat_info.numScan
+	GPIS(t) = compute_GPIS_temporal(GPIS(t).scantime,GPIS(1:t), spatial_grid, pat_info, std_info,option);
 end
+% =========================
 
 % --- Compute GR (growth rate) field: f'(t)=(GPIS(t+1)-GPIS(t))/\delta_t
 GR(pat_info.numScan-1) = struct('est',[],'var',[]);
@@ -129,7 +132,7 @@ out.S_est = field_to_surface(out.thres,out.est,spatial_grid);
 out.S_est = surface_refiner(out.S_est);
 out.S_true = GPIS(end).X;
 
-% --- Create CB
+% --- Create CB ONLY for the LAST prediction
 CB = mvnrnd(out.est,out.var,option.CB_run);
 for i=1:option.CB_run
     CB_temp = field_to_surface(out.thres,CB(i,:)',spatial_grid);
