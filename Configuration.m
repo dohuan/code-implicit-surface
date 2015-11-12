@@ -4,8 +4,8 @@ function option = Configuration()
     option.cutoff = 1000;
     option.edgeLimit = 1; % 4e-3
     
-    option.thres_size = 500;
-    option.thres_span = 0.2;
+    option.thres_size = 100; % 500
+    option.thres_span = 0.3; % 0.2
     
     option.bin_size = 2000;
     option.bin_min = 0;

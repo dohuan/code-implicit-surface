@@ -9,8 +9,10 @@ time_convert = 30; % convert a month to days
 
 data_path = './Patient_Data/truncated_data/';
 out.name = pat_info.name;
+out.method = 2;
 GPIS(pat_info.numScan) = struct('X',[],'y',[],'IS',[],'scantime',[]);
-X_all = []; % --- Used for standardizing data
+X_all = [];         % --- Used for standardizing data
+time_all = [];      % --- Used for standardizing data
 for i=1:pat_info.numScan
     file_name = [data_path pat_info.name num2str(i) '_inner'];
     load(file_name)
@@ -42,34 +44,38 @@ for i=1:pat_info.numScan
     %GPIS(i).X = [time_temp X_temp];
     GPIS(i).X = X_temp;
     X_all = [X_all; GPIS(i).X];
+    time_all = [time_all;GPIS(i).scantime];
 end
 
 clear data
 if (option.ifStand==1)
-    std_info(1).mean = mean(X_all(:,1));     % t
+    std_info(1).mean = mean(X_all(:,1));     
     std_info(1).std = sqrt(var(X_all(:,1)));
-    std_info(2).mean = mean(X_all(:,2));     % x
+    std_info(2).mean = mean(X_all(:,2));     
     std_info(2).std = sqrt(var(X_all(:,2)));
-    std_info(3).mean = mean(X_all(:,3));     % y
+    std_info(3).mean = mean(X_all(:,3));     
     std_info(3).std = sqrt(var(X_all(:,3)));
-    std_info(4).mean = mean(X_all(:,4));     % z
-    std_info(4).std = sqrt(var(X_all(:,4)));
+    %std_info(4).mean = mean(time_all);    
+    %std_info(4).std = sqrt(var(time_all));
     
     % --- Standardize data
-    for k=1:pat_info.numScan
-        GPIS(k).X = (GPIS(k).X(:,i)-std_info(i).mean)./std_info(i).std;
+    for i=1:pat_info.numScan
+        for k=1:3
+            GPIS(i).X(:,k) = (GPIS(i).X(:,k)-std_info(k).mean)./std_info(k).std;
+        end
+        GPIS(i).scantime = (GPIS(i).scantime-min(time_all))/(max(time_all)-min(time_all));
     end
 end
 
 % --- Config spatial
 if (option.ifStand==1)
-    x_max = (max_(1)-std_info(2).mean)/std_info(2).std;
-    y_max = (max_(2)-std_info(3).mean)/std_info(3).std;
-    z_max = (max_(3)-std_info(4).mean)/std_info(4).std;
+    x_max = (max_(1)-std_info(1).mean)/std_info(1).std;
+    y_max = (max_(2)-std_info(2).mean)/std_info(2).std;
+    z_max = (max_(3)-std_info(3).mean)/std_info(3).std;
     
-    x_min = (min_(1)-std_info(2).mean)/std_info(2).std;
-    y_min = (min_(2)-std_info(3).mean)/std_info(3).std;
-    z_min = (min_(3)-std_info(4).mean)/std_info(4).std;
+    x_min = (min_(1)-std_info(1).mean)/std_info(1).std;
+    y_min = (min_(2)-std_info(2).mean)/std_info(2).std;
+    z_min = (min_(3)-std_info(3).mean)/std_info(3).std;
 else
     x_max = max_(1);
     y_max = max_(2);
@@ -88,52 +94,85 @@ spatial_grid = [S1(:),S2(:),S3(:)];
 
 % --- Compute GPIS
 for i=1:pat_info.numScan
-    GPIS(i) = compute_GPIS_spatial(GPIS(i), spatial_grid, pat_info, option);
+    GPIS(i) = compute_GPIS_spatial(GPIS(i), spatial_grid, pat_info, std_info,option);
 end
 
 % --- Compute GR (growth rate) field: f'(t)=(GPIS(t+1)-GPIS(t))/\delta_t
 GR(pat_info.numScan-1) = struct('est',[],'var',[]);
-for i=1:pat_info.numScan-2
-    GR(i).est = (GPIS(i+1).IS.est-GPIS(i).IS.est)./(GPIS(i+1).time-GPIS(i).time);
-    GR(i).var = (GPIS(i+1).IS.var-GPIS(i).IS.var)./(GPIS(i+1).time-GPIS(i).time);
+X = [];
+y = [];
+for i=1:pat_info.numScan-1
+    GR(i).est = (GPIS(i+1).IS.est-GPIS(i).IS.est)./(GPIS(i+1).scantime-GPIS(i).scantime); % E(\hat{A})
+    GR(i).var = (GPIS(i+1).IS.var+GPIS(i).IS.var)./(GPIS(i+1).scantime-GPIS(i).scantime)^2; % var(\hat{A}):= \Sig_W
+    X_temp = [GPIS(i).scantime*ones(size(spatial_grid,1),1) spatial_grid];
+    X = [X;X_temp];
+    y = [y;GR(i).est];
 end
 
+% --- Compute the threshold value
+[thres_temp,~,~] = thresCal(pat_info.name,GPIS(end-1).IS.est,GPIS(end-1).X,...
+                                                    spatial_grid,option,0);
+
+%out = GPIS(end);
+out.thres = thres_temp.up;
+
+%  !!! HERE: have to estimate GR(end) with spatial-temporal GP
+
+% GR  : 1,...,L-1
+% GPIS: 1,...,L
+out.est = GPIS(end-1).IS.est + ...
+                   (GPIS(end).scantime-GPIS(end-1).scantime)*GR(end-1).est;
+out.var = GPIS(end-1).IS.var + ...
+                 (GPIS(end).scantime-GPIS(end-1).scantime)^2*GR(end-1).var;
+
+out.S_est = field_to_surface(out.thres,out.est,spatial_grid);
+out.S_est = surface_refiner(out.S_est);
+out.S_true = GPIS(end).X;
+
+% --- Create CB
+CB = mvnrnd(out.est,out.var,option.CB_run);
+for i=1:option.CB_run
+    CB_temp = field_to_surface(out.thres,CB(i,:)',spatial_grid);
+    out.CB{i} = surface_refiner(CB_temp);
+    
 end
 
-
-
-
-
-
-function data = compute_GPIS_spatial(data,spatial_grid,pat_info,option)
-covfunc  = {'covSum', {'covSEard','covNoise'}};
-likfunc  = @likGauss;
-meanfunc = @meanOne;
 if (option.ifStand == 1)
-    %hyp.cov(1) = log(abs((pat_info.band_t)/std_info(1).std));   % bandwidth of time
-    hyp.cov(1) = log(abs((pat_info.band_x)/std_info(2).std));   % bandwidth of x
-    hyp.cov(2) = log(abs((pat_info.band_y)/std_info(3).std));   % bandwidth of y
-    hyp.cov(3) = log(abs((pat_info.band_z)/std_info(4).std));  % bandwidth of z
+%%                  Convert 3-D model to unstandardized coordinates
+    for i=1:3
+        out.S_est(:,i) = out.S_est(:,i).*std_info(i).std + std_info(i).mean;
+        out.S_true(:,i) = out.S_true(:,i).*std_info(i).std + std_info(i).mean;
+        for j=1:option.CB_run
+            out.CB{j}(:,i) = out.CB{j}(:,i).*std_info(i).std + std_info(i).mean;
+        end
+    end
+%     out.band_t = exp(hyp.cov(1))*std_info(1).std;
+%     out.band_x = exp(hyp.cov(2))*std_info(2).std;
+%     out.band_y = exp(hyp.cov(3))*std_info(3).std;
+%     out.band_z = exp(hyp.cov(4))*std_info(4).std;
+%     out.band_f = exp(hyp.cov(5));
 else
-    %hyp.cov(1) = log(pat_info.band_t);
-    hyp.cov(1) = log(pat_info.band_x);
-    hyp.cov(2) = log(pat_info.band_y);
-    hyp.cov(3) = log(pat_info.band_z);
+%     out.band_t = exp(hyp.cov(1));
+%     out.band_x = exp(hyp.cov(2));
+%     out.band_y = exp(hyp.cov(3));
+%     out.band_z = exp(hyp.cov(4));
+%     out.band_f = exp(hyp.cov(5));
 end
-hyp.cov(4) = log(pat_info.band_f);   % \sig_f
-hyp.cov(5) = log(0.05);              % \sig_w: measurement noise .05
-hyp.lik = log(0.05);                 % initial prior probability for hyper p(\theta) 0.03
 
-hyp = minimize(hyp, @gp, -10, @infExact, meanfunc, covfunc, ...
-                                         likfunc, data.X, data.y);
-[est, var] = ...
-       gaussian_process(hyp, covfunc,meanfunc, data.X,data.y,spatial_grid);
-data.IS.est = est;
-data.IS.var = var;
-data.IS.hyp = hyp;
+[out.Haus,~] = HausdorffDist(out.S_est,out.S_true);
 
 end
 
-function data = compute_GPIS_temporal()
 
+function S = field_to_surface(thres,field,grid)
+    S = [];
+    for i=1:size(field,1)
+        %if (field(i,1)>=0&&field(i,1)<=thres)
+        if (field(i,1)<=thres)
+            S = [S;grid(i,:)];
+        end
+    end
 end
+
+
+

@@ -8,10 +8,10 @@ tic
 addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
-ifPlot = 1;
-ifSave = 0;
-%Pat_list = patient_list([],0);
-Pat_list = patient_list('JJ',1);
+ifPlot = 0;
+ifSave = 1;
+Pat_list = patient_list_speed([],0);
+%Pat_list = patient_list_speed('KK',1);
 option = Configuration();
 
 if (ifSave==1)
@@ -24,16 +24,18 @@ if (ifSave==1)
         num2str(c(2)) num2str(c(3)) '_' num2str(c(4)) num2str(c(5)) '/'];
     mkdir(plySaveFolder);
     fileID = fopen([folderName 'report.txt'],'w');
-    fprintf(fileID,'Patient ID,sig_t,sig_f,sig_x,sig_y,sig_z,Haust_dist, thres of test\n');
+    
 end
 
 for i=1:size(Pat_list,2)
-    predict = patient_process(Pat_list(i),option);
+    %predict = patient_process(Pat_list(i),option);
+    predict = patient_process_speed(Pat_list(i),option);
     %predict(i) = patient_process_1(Pat_list(i),option);
     
     if (ifSave==1)
         saveFile = [folderName Pat_list(i).name];
-        save(saveFile);
+        %save(filename,'dumvar','-v7.3');
+        save(saveFile,'-v7.3');
         
         % --- Export to PLY files
         for j=1:option.CB_run
@@ -53,9 +55,16 @@ for i=1:size(Pat_list,2)
         saveas(h,[folderName Pat_list(i).name '.jpg']);
         close(h);
         % --- Save predict report to text file
-        fprintf(fileID,'%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.4f\n',...
-            predict.name,predict.band_t,predict.band_f,predict.band_x,...
-            predict.band_y,predict.band_z,predict.Haus_dist,predict.thres_test);
+        if (predict.method ==1)
+            fprintf(fileID,'Patient ID,sig_t,sig_f,sig_x,sig_y,sig_z,Haust_dist, thres of test\n');
+            fprintf(fileID,'%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.4f\n',...
+                predict.name,predict.band_t,predict.band_f,predict.band_x,...
+                predict.band_y,predict.band_z,predict.Haus_dist,predict.thres_test);
+        else
+            fprintf(fileID,'Patient ID, Haust_dist, threshold value\n');
+            fprintf(fileID,'%s,%.2f,%.4f\n',...
+                predict.name, predict.Haus,predict.thres);
+        end
         clear predict
     end
 end
