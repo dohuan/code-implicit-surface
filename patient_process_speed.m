@@ -58,7 +58,7 @@ if (option.ifStand==1)
     %std_info(4).mean = mean(time_all);    
     %std_info(4).std = sqrt(var(time_all));
     
-    % --- Standardize data
+    % --- Standardize spatial data and transform time
     for i=1:pat_info.numScan
         for k=1:3
             GPIS(i).X(:,k) = (GPIS(i).X(:,k)-std_info(k).mean)./std_info(k).std;
@@ -67,7 +67,7 @@ if (option.ifStand==1)
     end
 end
 
-% --- Config spatial
+% --- Config spatial grid
 if (option.ifStand==1)
     x_max = (max_(1)-std_info(1).mean)/std_info(1).std;
     y_max = (max_(2)-std_info(2).mean)/std_info(2).std;
