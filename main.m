@@ -86,18 +86,11 @@ end
 covfunc  = @covSEard; 
 likfunc  = @likGauss;
 meanfunc = @meanOne;
-%meanfunc = {'meanProd',{'meanZero','meanOne'}};
 
 hyp.cov(1) = log(1);   % bandwidth of time
 hyp.cov(2) = log(5);   % bandwidth of x
 hyp.cov(3) = log(5);   % bandwidth of y
 hyp.cov(4) = log(10);  % bandwidth of z
-
-
-% hyp.cov(1) = log(5);   % bandwidth of x
-% hyp.cov(2) = log(5);   % bandwidth of y
-% hyp.cov(3) = log(10);  % bandwidth of z
-% hyp.cov(4) = log(1);   % bandwidth of time
 
 hyp.cov(5) = log(1);   % \sig_f
 hyp.lik = log(0.03);

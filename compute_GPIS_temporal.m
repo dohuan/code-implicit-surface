@@ -7,6 +7,9 @@ for i=1:nt
 	time_tmp = data(i).scantime*ones(size(data(i).X,1),1);
 	X = [X;[time_tmp data(i).X]];
 	y = [y;data(i).y];
+    if (time_tmp==test_time)
+        test_index = i;
+    end
 end
 covfunc  = {'covSum', {'covSEard','covNoise'}};
 likfunc  = @likGauss;
@@ -33,9 +36,11 @@ test_grid = [];
 for i=1:length(test_time)
 	test_grid = [test_grid;[test_time(i)*ones(size(spatial_grid,1),1) spatial_grid]];
 end
+%[est, var] = ...
+%       gaussian_process(hyp, covfunc,meanfunc, data.X,data.y,test_grid);
 [est, var] = ...
-       gaussian_process(hyp, covfunc,meanfunc, data.X,data.y,test_grid);
-data.IS.est = est;
-data.IS.var = var;
-data.IS.hyp = hyp;
+       gaussian_process(hyp, covfunc,meanfunc, X,y,test_grid);
+data(test_index).IS.est = est;
+data(test_index).IS.var = var;
+data(test_index).IS.hyp = hyp;
 end

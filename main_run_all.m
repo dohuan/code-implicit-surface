@@ -9,9 +9,9 @@ addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
 ifPlot = 0;
-ifSave = 1;
-Pat_list = patient_list_speed([],0);
-%Pat_list = patient_list_speed('KK',1);
+ifSave = 0;
+%Pat_list = patient_list_speed([],0);
+Pat_list = patient_list_speed('P3',1);
 option = Configuration();
 
 if (ifSave==1)
