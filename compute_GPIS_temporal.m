@@ -14,7 +14,7 @@ end
 covfunc  = {'covSum', {'covSEard','covNoise'}};
 likfunc  = @likGauss;
 meanfunc = @meanOne;
-hyp.cov(1) = (pat_info.band_t-time_info.min)/(time_info.max-time_info.min);
+hyp.cov(1) = log((pat_info.band_t-time_info.min)/(time_info.max-time_info.min));
 if (option.ifStand == 1)
     %hyp.cov(1) = log(abs((pat_info.band_t)/std_info(1).std));   % bandwidth of time
     hyp.cov(2) = log(abs((pat_info.band_x)/std_info(1).std));  % bandwidth of x

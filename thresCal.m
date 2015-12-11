@@ -37,7 +37,7 @@ for i=1:size(thres_range,1)
         pat_name,i/size(thres_range,1)*100);
     
 end
-thres.up = thres_min_up;
+thres = thres_min_up;
 if (flag==1)
     index_temp = thres_range<=thres_min_up;
     thres_range = thres_range(index_temp);

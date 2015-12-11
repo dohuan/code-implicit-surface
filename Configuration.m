@@ -1,5 +1,5 @@
 function option = Configuration()
-    option.gridsize = 10; % 20
+    option.gridsize = 20; % 20
     option.pts_mode = 0; % 0: only on surface, 1: inner line included, 2: outter surface included
     option.cutoff = 1000;
     option.edgeLimit = 1; % 4e-3

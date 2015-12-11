@@ -39,7 +39,7 @@ for t=2:T
         Ht = (mean_T(:,t-1)-mean_T(:,t))*A'+A*(mean_T(:,t-1)-mean_T(:,t))';
         Ct = cov_T(:,:,t) + mean_T(:,t)*mean_T(:,t)';
         Et = cov_T(:,:,t-1) + mean_T(:,t-1)*mean_T(:,t-1)';
-        Bt = cov_T_(:,:,t-1) + mean_T(:,t)*mean_T(:,t-1)';
+        Bt = cov_T_(:,:,t) + mean_T(:,t)*mean_T(:,t-1)';
         
         tmp3 = tmp3 + delta_t^(-2)*(Ct-Bt-Bt'+Et+delta_t*Ht+delta_t^2*(A*A'));
         
@@ -71,7 +71,7 @@ for t=2:T
         Ht = (mean_T(:,t-1)-mean_T(:,t))*A'+A*(mean_T(:,t-1)-mean_T(:,t))';
         Ct = cov_T(:,:,t) + mean_T(:,t)*mean_T(:,t)';
         Et = cov_T(:,:,t-1) + mean_T(:,t-1)*mean_T(:,t-1)';
-        Bt = cov_T_(:,:,t-1) + mean_T(:,t)*mean_T(:,t-1)';
+        Bt = cov_T_(:,:,t) + mean_T(:,t)*mean_T(:,t-1)';
         
         logL = logL -1/2*logdet(delta_t^2*SW)...
             -1/2*trace(delta_t^(-2)*SWinv*(Ct-Bt-Bt'+Et+delta_t*Ht+delta_t^2*(A*A')))...

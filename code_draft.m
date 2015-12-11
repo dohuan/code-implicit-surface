@@ -772,6 +772,65 @@ if (size(Pat_list,2)==1)
 end
 
 
+% === Poly fit of threshold values ===
+for i=1:7
+	subplot(2,4,i)
+	t=  [];
+	for j=1:Pat_list(i).numScan-1
+		load(['./Patient_Data/truncated_data/' Pat_list(i).name num2str(j) '_inner']);
+		t = [t;data.time_stamp];
+	end
+	if (Pat_list(i).numScan-1<4)
+		p = polyfit(t,thres(i).a,2);
+	else
+		p = polyfit(t,thres(i).a,3);
+	end
+	x = min(t):1:max(t);
+	y = polyval(p,x);
+	load(['./Patient_Data/truncated_data/' Pat_list(i).name num2str(Pat_list(i).numScan) '_inner']);
+	x_test = data.time_stamp;
+	y_test = polyval(p,x_test);
+	
+	hold on;
+	plot(t,thres(i).a,'bo-');
+	plot(x,y,'r-');
+	plot(x_test,y_test,'sk');
+	hold off
+	title(Pat_list(i).name);
+	box on;
+end
 
+% === GP of threshold values ===
+for i=1:7
+	subplot(2,4,i)
+	x=  [];
+	for j=1:Pat_list(i).numScan-1
+		load(['./Patient_Data/truncated_data/' Pat_list(i).name num2str(j) '_inner']);
+		x = [x;data.time_stamp];
+	end
+	y = thres(i).a;
+	
+	load(['./Patient_Data/truncated_data/' Pat_list(i).name num2str(Pat_list(i).numScan) '_inner']);
+	x_test = (min(x):1:data.time_stamp)';
+	
+	covfunc = @covSEard; 
+	likfunc = @likGauss;
+	meanfunc = @meanConst;
+	
+	hyp.cov(1) = log(5);
+	hyp.cov(2) = log(100);
+	hyp.mean = mean(y);
+	hyp.lik = log(2);
+	%hyp = minimize(hyp, @gp, -100, @infExact, meanfunc, covfunc, likfunc, x, y);
+	[y_est, ~] = gp(hyp, @infExact, meanfunc, covfunc, likfunc, x, y, x_test);
+	
+	hold on;
+	plot(x,y,'bo-');
+	plot(x_test,y_est,'r-');
+	plot(x_test(end),y_est(end),'sk');
+	hold off
+	title(Pat_list(i).name);
+	box on;
+end
 
 

@@ -121,8 +121,8 @@ end
 thres_temp = GP_thres(thres_time,thres,GPIS(end).scantime);
 
 % --- Compute the threshold value
-%[thres_temp,~,~] = thresCal(pat_info.name,GPIS(end-1).IS.est,GPIS(end-1).X,...
-%    spatial_grid,option,0);
+[thres_temp,~,~] = thresCal(pat_info.name,GPIS(end-1).IS.est,GPIS(end-1).X,...
+    spatial_grid,option,0);
 
 
 out.thres = thres_temp;
