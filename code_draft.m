@@ -833,4 +833,13 @@ for i=1:7
 	box on;
 end
 
+% ----- Test non-uniform grid
+theta = linspace(0,2*pi,1000);
+x = cos(theta);
+y = sin(theta);
+N = 100;
+bar(1/N*hist(x,100));
+figure(2)
+bar(1/N*hist(y,100));
+
 
