@@ -82,6 +82,10 @@ if (option.ifStand==1)
     x_min = (min_(1)-std_info(1).mean)/std_info(1).std;
     y_min = (min_(2)-std_info(2).mean)/std_info(2).std;
     z_min = (min_(3)-std_info(3).mean)/std_info(3).std;
+    
+    X_all(:,1) = (X_all(:,1)-std_info(1).mean)./std_info(1).std;
+    X_all(:,2) = (X_all(:,2)-std_info(2).mean)./std_info(2).std;
+    X_all(:,3) = (X_all(:,3)-std_info(3).mean)./std_info(3).std;
 else
     x_max = max_(1);
     y_max = max_(2);
@@ -92,11 +96,46 @@ else
     z_min = min_(3);
 end
 
-x_mesh = linspace(x_min,x_max,option.gridsize);
-y_mesh = linspace(y_min,y_max,option.gridsize);
-z_mesh = linspace(z_min,z_max,option.gridsize);
-[S1,S2,S3] = meshgrid(x_mesh,y_mesh,z_mesh); % [middle shortest longest]
-spatial_grid = [S1(:),S2(:),S3(:)];
+x_mesh = linspace(x_min,x_max,option.xygridsize);
+y_mesh = linspace(y_min,y_max,option.xygridsize);
+z_mesh = linspace(z_min,z_max,option.zgridsize);
+
+%[S1,S2,S3] = meshgrid(x_mesh,y_mesh,z_mesh); % [middle shortest longest]
+%spatial_grid = [S1(:),S2(:),S3(:)];
+
+% --- Non-uniform grid ---
+[S1,S2] = meshgrid(x_mesh,y_mesh);
+xy_mesh = [S1(:) S2(:)];
+z_window = 0.4*(z_max-z_min)/option.zgridsize;
+spatial_grid = [];
+for i=1:length(z_mesh)
+	ix = X_all(:,3)<(z_mesh(i)+z_window) & (z_mesh(i)-z_window)<X_all(:,3);
+	xy = X_all(ix,[1 2]);
+	
+	xy_label = zeros(size(xy_mesh,1),1);
+	
+	for j=1:size(xy,1)
+		[~,tmp] = sort(sum((repmat(xy(j,:),size(xy_mesh,1),1)-xy_mesh).^2,2));
+		tmp = sort(tmp(1:4));
+		xy_label(tmp(1)) = xy_label(tmp(1)) | 1;
+		xy_label(tmp(2)) = xy_label(tmp(2)) | 1;
+		xy_label(tmp(3)) = xy_label(tmp(3)) | 1;
+		xy_label(tmp(4)) = xy_label(tmp(4)) | 1;
+	end
+	
+	labeltmp = reshape(xy_label,option.xygridsize,option.xygridsize);
+	se = strel('disk',4);
+	labeltmp = imclose(labeltmp,se);
+	xy_label = labeltmp(:);
+	
+	for j=1:size(xy_mesh,1)
+		if (xy_label(j)==1)
+			%plot(xy_mesh(j,1),xy_mesh(j,2),'r.');
+            spatial_grid = [spatial_grid;[xy_mesh(j,:) z_mesh(i)]];
+		end
+	end
+end
+
 
 % ========== Compute spatio-temporal up to T-1 as observations ============
 

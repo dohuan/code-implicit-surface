@@ -8,10 +8,10 @@ tic
 addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
-ifSave = 1;
+ifSave = 0;
 ifPlot = 0;
-Pat_list = patient_list_speed([],0);
-%Pat_list = patient_list_speed('P0',1);
+%Pat_list = patient_list_speed([],0);
+Pat_list = patient_list_speed('P3',1);
 option = Configuration();
 
 if (ifSave==1)
@@ -28,25 +28,25 @@ if (ifSave==1)
 end
 
 % --- Config parallel computing
-N = 10;
-poolobj = gcp('nocreate');
-if isempty(poolobj)
-    poolsize = 0;
-else
-    poolsize = poolobj.NumWorkers;
-end
-
-if poolsize == 0
-    parpool('local',N);
-else
-    if poolsize~=N
-        delete(poolobj);
-        parpool('local',N);
-    end
-end
+% N = 10;
+% poolobj = gcp('nocreate');
+% if isempty(poolobj)
+%     poolsize = 0;
+% else
+%     poolsize = poolobj.NumWorkers;
+% end
+% 
+% if poolsize == 0
+%     parpool('local',N);
+% else
+%     if poolsize~=N
+%         delete(poolobj);
+%         parpool('local',N);
+%     end
+% end
 
 %predict(size(Pat_list,2)) = struct;
-parfor i=1:size(Pat_list,2)
+for i=1:size(Pat_list,2)
     %[predict, thres(i).a] = patient_process_speed(Pat_list(i),option);
     [predict, thres(i).a] = patient_process_speed(Pat_list(i),option);
     if (ifSave==1)

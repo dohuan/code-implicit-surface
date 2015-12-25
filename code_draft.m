@@ -843,3 +843,121 @@ figure(2)
 bar(1/N*hist(y,100));
 
 
+
+% -------- Non-uniform grid with independent x and y-axis
+x_mesh = linspace(x_min,x_max,option.gridsize);
+y_mesh = linspace(y_min,y_max,option.gridsize);
+
+z_mesh = linspace(z_min,z_max,option.gridsize);
+z_window = 0.4*(z_max-z_min)/option.gridsize;
+%step = .2*(x_max-y_min)/option.gridsize;
+histlength = 100;
+iter = 300;
+for i=1:length(z_mesh)
+	ix = find(X_all(:,3)<(z_mesh(i)+z_window) & (z_mesh(i)-z_window)<X_all(:,3));
+	xy = X_all(ix,[1 2]);
+	
+	%figure(2)
+	subplot(4,5,i);
+	hold on
+	plot(xy(:,1),xy(:,2),'bo');
+	
+	[xh,xhp] = hist(xy(:,1),histlength);
+	[yh,yhp] = hist(xy(:,2),histlength);
+	xh = 1/histlength*xh;
+	yh = 1/histlength*yh;
+	
+	%x_mesh_ = x_mesh;
+	%y_mesh_ = y_mesh;
+	
+	x_mesh_ = linspace(min(xy(:,1)),max(xy(:,1)),option.gridsize);
+	y_mesh_ = linspace(min(xy(:,2)),max(xy(:,2)),option.gridsize);
+	
+	
+	%figure(1)
+	%subplot(4,5,i);
+	%hold on
+	%plot(xy(:,1),xy(:,2),'bo');
+	%[S1,S2] = meshgrid(x_mesh_,y_mesh_);
+	%plot(S1,S2,'r.');
+	
+	step = .3*(max(xy(:,1))-min(xy(:,1)))/option.gridsize;
+	
+	for k=1:iter
+		for j=2:length(x_mesh_)-1
+			[~,tmp] = sort(abs(xhp-x_mesh_(j)));
+			tmp = sort(tmp(1:2));
+			movestep = step*sin(atan((xh(tmp(2))-xh(tmp(1)))/(xhp(tmp(2))-xhp(tmp(1)))));
+			if (x_mesh_(j)+movestep>x_mesh_(1) & x_mesh_(j)+movestep<x_mesh_(end))
+				x_mesh_(j) = x_mesh_(j) + movestep;
+			end
+			%x_mesh_(j) = x_mesh_(j) + movestep;
+			
+			
+			[~,tmp] = sort(abs(yhp-y_mesh_(j)));
+			tmp = sort(tmp(1:2));
+			movestep = step*sin(atan((xh(tmp(2))-xh(tmp(1)))/(xhp(tmp(2))-xhp(tmp(1)))));
+			if (y_mesh_(j)+movestep>y_mesh_(1) & y_mesh_(j)+movestep<y_mesh_(end))
+				y_mesh_(j) = y_mesh_(j) + movestep;
+			end
+			%y_mesh_(j) = y_mesh_(j) + movestep;
+		end
+	end
+	x_mesh_ = sort(x_mesh_);
+	y_mesh_ = sort(y_mesh_);
+	
+	x_mesh_z(:,i) = x_mesh_;
+	y_mesh_z(:,i) = y_mesh_;
+	
+	%figure(2)
+	subplot(4,5,i);
+	[S1,S2] = meshgrid(x_mesh_,y_mesh_);
+	plot(S1,S2,'r.');
+	
+	hold off
+end
+
+
+
+
+% -------- Non-uniform grid with connected components
+density = 20;
+x_mesh = linspace(x_min,x_max,density);
+y_mesh = linspace(y_min,y_max,density);
+[S1,S2] = meshgrid(x_mesh,y_mesh);
+xy_mesh = [S1(:) S2(:)];
+
+z_mesh = linspace(z_min,z_max,option.gridsize);
+z_window = 0.4*(z_max-z_min)/option.gridsize;
+meshsum = 0;
+for i=1:length(z_mesh)
+	ix = find(X_all(:,3)<(z_mesh(i)+z_window) & (z_mesh(i)-z_window)<X_all(:,3));
+	xy = X_all(ix,[1 2]);
+	
+	xy_label = zeros(size(xy_mesh,1),1);
+	
+	for j=1:size(xy,1)
+		[~,tmp] = sort(sum((repmat(xy(j,:),size(xy_mesh,1),1)-xy_mesh).^2,2));
+		tmp = sort(tmp(1:4));
+		xy_label(tmp(1)) = xy_label(tmp(1)) | 1;
+		xy_label(tmp(2)) = xy_label(tmp(2)) | 1;
+		xy_label(tmp(3)) = xy_label(tmp(3)) | 1;
+		xy_label(tmp(4)) = xy_label(tmp(4)) | 1;
+	end
+	
+	labeltmp = reshape(xy_label,density,density);
+	se = strel('disk',4);
+	labeltmp = imclose(labeltmp,se);
+	xy_label = labeltmp(:);
+	
+	subplot(4,5,i);
+	hold on
+	plot(xy(:,1),xy(:,2),'bo');
+	for j=1:size(xy_mesh,1)
+		if (xy_label(j)==1)
+			plot(xy_mesh(j,1),xy_mesh(j,2),'r.');
+		end
+	end
+	hold off
+	meshsum = meshsum + sum(xy_label);
+end
