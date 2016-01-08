@@ -11,7 +11,7 @@ addpath(genpath('./HausdorffDist'))
 ifSave = 0;
 ifPlot = 0;
 %Pat_list = patient_list_speed([],0);
-Pat_list = patient_list_speed('P3',1);
+Pat_list = patient_list_speed('HH',1);
 option = Configuration();
 
 if (ifSave==1)

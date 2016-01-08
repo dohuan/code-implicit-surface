@@ -961,3 +961,8 @@ for i=1:length(z_mesh)
 	hold off
 	meshsum = meshsum + sum(xy_label);
 end
+
+
+
+% ------- Run EM with different initial values of A and Sig_w
+
