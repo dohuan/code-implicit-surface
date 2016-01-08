@@ -965,4 +965,81 @@ end
 
 
 % ------- Run EM with different initial values of A and Sig_w
+figure(1)
+hold on
 
+count = 1;
+A0   = (GPIS(2).IS.est-GPIS(1).IS.est)/(GPIS(2).scantime-GPIS(1).scantime);
+SW0  = GPIS(1).IS.var;
+
+mu0  = GPIS(1).IS.est;
+Sig0 = GPIS(1).IS.var;
+logL = zeros(option.EM_run,1);
+
+while (count<option.EM_run+1)
+    if (count ==1)
+        [mean_T,cov_T,cov_T_,mean_T0,cov_T0,cov_T_10,~] =...
+        KF_update(A0,SW0,mu0,Sig0,GPIS,pat_info,spatial_grid);
+    else
+        [mean_T,cov_T,cov_T_,mean_T0,cov_T0,cov_T_10,~] =...
+        KF_update(A,SW,mu0,Sig0,GPIS,pat_info,spatial_grid);
+    end
+    [A,SW, logL(count)] = EM_update(mean_T,cov_T,cov_T_,mean_T0,cov_T0,...
+    cov_T_10,Sig0,GPIS,pat_info);
+    count = count + 1;
+end
+
+plot(logL,'b','LineWidth',2);
+
+% -----------
+count = 1;
+A0   = (GPIS(3).IS.est-GPIS(2).IS.est)/(GPIS(3).scantime-GPIS(2).scantime);
+SW0  = GPIS(2).IS.var;
+
+mu0  = GPIS(1).IS.est;
+Sig0 = GPIS(1).IS.var;
+logL = zeros(option.EM_run,1);
+
+while (count<option.EM_run+1)
+    if (count ==1)
+        [mean_T,cov_T,cov_T_,mean_T0,cov_T0,cov_T_10,~] =...
+        KF_update(A0,SW0,mu0,Sig0,GPIS,pat_info,spatial_grid);
+    else
+        [mean_T,cov_T,cov_T_,mean_T0,cov_T0,cov_T_10,~] =...
+        KF_update(A,SW,mu0,Sig0,GPIS,pat_info,spatial_grid);
+    end
+    [A,SW, logL(count)] = EM_update(mean_T,cov_T,cov_T_,mean_T0,cov_T0,...
+    cov_T_10,Sig0,GPIS,pat_info);
+    count = count + 1;
+end
+
+plot(logL,'r--','LineWidth',2);
+
+% -----------
+count = 1;
+A0   = 3*(GPIS(2).IS.est-GPIS(1).IS.est)/(GPIS(2).scantime-GPIS(1).scantime);
+SW0  = 3*GPIS(1).IS.var;
+
+mu0  = GPIS(1).IS.est;
+Sig0 = GPIS(1).IS.var;
+logL = zeros(option.EM_run,1);
+
+while (count<option.EM_run+1)
+    if (count ==1)
+        [mean_T,cov_T,cov_T_,mean_T0,cov_T0,cov_T_10,~] =...
+        KF_update(A0,SW0,mu0,Sig0,GPIS,pat_info,spatial_grid);
+    else
+        [mean_T,cov_T,cov_T_,mean_T0,cov_T0,cov_T_10,~] =...
+        KF_update(A,SW,mu0,Sig0,GPIS,pat_info,spatial_grid);
+    end
+    [A,SW, logL(count)] = EM_update(mean_T,cov_T,cov_T_,mean_T0,cov_T0,...
+    cov_T_10,Sig0,GPIS,pat_info);
+    count = count + 1;
+end
+
+plot(logL,'g-.','LineWidth',2);
+
+box on
+xlabel('iterations','FontSize',16);
+ylabel('Log likelihood','FontSize',16);
+set(gca,'FontSize',16);
