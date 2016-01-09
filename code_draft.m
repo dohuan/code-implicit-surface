@@ -965,6 +965,7 @@ end
 
 
 % ------- Run EM with different initial values of A and Sig_w
+
 figure(1)
 hold on
 
@@ -1042,4 +1043,71 @@ plot(logL,'g-.','LineWidth',2);
 box on
 xlabel('iterations','FontSize',16);
 ylabel('Log likelihood','FontSize',16);
+set(gca,'FontSize',16);
+
+
+
+
+
+
+% ------- Run EM with different initial values of A and Sig_w
+% ONLY USE FOR PATIENT H
+plotstyle{1} = 'b-.';
+plotstyle{2} = 'r--';
+plotstyle{3} = 'b-';
+plotstyle{4} = 'g-';
+plotstyle{5} = 'r:';
+
+for i =1:5
+	count = 1;
+	A0   = (GPIS(i+1).IS.est-GPIS(i).IS.est)/(GPIS(i+1).scantime-GPIS(i).scantime);
+	SW0  = GPIS(i).IS.var;
+
+	mu0  = GPIS(1).IS.est;
+	Sig0 = GPIS(1).IS.var;
+	logL(:,i) = zeros(option.EM_run,1);
+	
+	A_track(:,count) = A0;
+	Sigw_track(:,:,count) = SW0;
+	normA_track = [];
+	normSigw_track = [];
+	while (count<option.EM_run+1)
+		if (count ==1)
+			[mean_T,cov_T,cov_T_,mean_T0,cov_T0,cov_T_10,~] =...
+			KF_update(A0,SW0,mu0,Sig0,GPIS,pat_info,spatial_grid);
+		else
+			[mean_T,cov_T,cov_T_,mean_T0,cov_T0,cov_T_10,~] =...
+			KF_update(A,SW,mu0,Sig0,GPIS,pat_info,spatial_grid);
+		end
+		[A,SW, logL(count,i)] = EM_update(mean_T,cov_T,cov_T_,mean_T0,cov_T0,...
+		cov_T_10,Sig0,GPIS,pat_info);
+		count = count + 1;
+		
+		A_track(:,count) = A;
+		normA_track = [normA_track;norm(A_track(:,count)-A_track(:,count-1))];
+		
+		Sigw_track(:,:,count) = SW;
+		normSigw_track = [normSigw_track;norm(Sigw_track(:,:,count)-Sigw_track(:,:,count-1))];
+	end
+	%figure(i)
+	%plot(logL(:,i),plotstyle{i},'LineWidth',2);
+	figure(1)
+	hold on
+	plot(normA_track,plotstyle{i},'LineWidth',2);
+	
+	figure(2)
+	hold on
+	plot(normSigw_track,plotstyle{i},'LineWidth',2);
+end
+
+figure(1)
+box on
+xlabel('iterations','FontSize',16);
+ylabel('Norms of the increments of A','FontSize',16);
+set(gca,'FontSize',16);
+
+figure(2)
+box on
+xlabel('iterations','FontSize',16);
+ylabel('Norms of the increments of \Sigma_w','FontSize',16);
 set(gca,'FontSize',16);
