@@ -1067,8 +1067,8 @@ for i =1:5
 	Sig0 = GPIS(1).IS.var;
 	logL(:,i) = zeros(option.EM_run,1);
 	
-	A_track(:,count) = A0;
-	Sigw_track(:,:,count) = SW0;
+	A_track(:,count,i) = A0;
+	Sigw_track(:,:,count,i) = SW0;
 	normA_track = [];
 	normSigw_track = [];
 	while (count<option.EM_run+1)
@@ -1083,11 +1083,13 @@ for i =1:5
 		cov_T_10,Sig0,GPIS,pat_info);
 		count = count + 1;
 		
-		A_track(:,count) = A;
-		normA_track = [normA_track;norm(A_track(:,count)-A_track(:,count-1))];
+		A_track(:,count,i) = A;
+		normA_track = [normA_track;norm(A_track(:,count,i)-A_track(:,count-1,i),'fro')];
+		%normA_track = [normA_track;mean(A_track(:,count))];
 		
-		Sigw_track(:,:,count) = SW;
-		normSigw_track = [normSigw_track;norm(Sigw_track(:,:,count)-Sigw_track(:,:,count-1))];
+		Sigw_track(:,:,count,i) = SW;
+		normSigw_track = [normSigw_track;norm(Sigw_track(:,:,count,i)-Sigw_track(:,:,count-1,i),'fro')];
+		%normSigw_track = [normSigw_track;mean(mean(Sigw_track(:,:,count)))];
 	end
 	%figure(i)
 	%plot(logL(:,i),plotstyle{i},'LineWidth',2);
@@ -1111,3 +1113,64 @@ box on
 xlabel('iterations','FontSize',16);
 ylabel('Norms of the increments of \Sigma_w','FontSize',16);
 set(gca,'FontSize',16);
+
+
+
+
+% ------------------
+close all
+for i=1:count
+	for j=1:5
+		Atemp = A_track;
+		Atemp(:,:,j) = [];
+		
+		Sigwtemp = Sigw_track;
+		Sigwtemp(:,:,:,j) = [];
+		
+		for k=1:4
+			tmpA(k,1) = norm(A_track(:,i,j)-Atemp(:,i,k));
+			tmpSigw(k,1) = norm(Sigw_track(:,:,i,j)-Sigwtemp(:,:,i,k),'fro');
+		end
+		distA(j,i) = max(tmpA);
+		distSigw(j,i) = max(tmpSigw);
+	end
+end
+
+for j=1:5
+	figure(1)
+	hold on
+	plot(distA(j,:),plotstyle{j},'LineWidth',2);
+	
+	figure(2)
+	hold on
+	plot(distSigw(j,:),plotstyle{j},'LineWidth',2);
+end
+
+figure(1)
+box on
+xlabel('iterations','FontSize',16);
+ylabel('Evolution of differences of A','FontSize',16);
+set(gca,'FontSize',16);
+
+figure(2)
+box on
+xlabel('iterations','FontSize',16);
+ylabel('Evolution of differences of \Sigma_w','FontSize',16);
+set(gca,'FontSize',16);
+
+
+
+
+% ---------------- Scalar-version likelihood function
+f = @(x,y) log(x)+1/x*(1+2*y+y^2)
+y = linspace(-10,10,100);
+x = linspace(0.01,0.1,100);
+[S1,S2]=meshgrid(x,y);
+value = [S1(:) S2(:)];
+for i =1:size(value,1)
+	z(i,1) = f(value(i,1),value(i,2));
+end
+z_ = reshape(z,100,100);
+ surf(z_,'EdgeColor','none');
+ xlabel('\Sigma_w')
+ ylabel('A')
