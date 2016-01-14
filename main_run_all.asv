@@ -48,7 +48,7 @@ end
 %predict(size(Pat_list,2)) = struct;
 for i=1:size(Pat_list,2)
     %[predict, thres(i).a] = patient_process_speed(Pat_list(i),option);
-    predict = patient_process_speed_1(Pat_list(i),option);
+    predict = patient_process_speed(Pat_list(i),option);
     if (ifSave==1)
         saveFile = [folderName Pat_list(i).name];
         %save(filename,'dumvar','-v7.3');
