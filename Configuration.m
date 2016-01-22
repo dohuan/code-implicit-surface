@@ -22,5 +22,6 @@ function option = Configuration()
     option.CB_run = 100; % number of MC run for credible band
     
     option.EM_run = 10;
+    option.grid_size = 7;
     
 end

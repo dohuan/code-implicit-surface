@@ -103,12 +103,12 @@ z_mesh = linspace(z_min,z_max,option.zgridsize);
 [S1,S2,S3] = meshgrid(x_mesh,y_mesh,z_mesh); % [middle shortest longest]
 spatial_grid_pool = [S1(:),S2(:),S3(:)];
 
-for s = 1:5
+for s = 1:option.grid_size
     for i=1:length(GPIS)
         GPIS(i).IS = [];
     end
     fprintf(['Run grid: ' num2str(s) '\n']);
-    spatial_grid = spatial_grid_pool(s:5:end,:);
+    spatial_grid = spatial_grid_pool(s:option.grid_size:end,:);
     % --- Non-uniform grid ---
     % [S1,S2] = meshgrid(x_mesh,y_mesh);
     % xy_mesh = [S1(:) S2(:)];
