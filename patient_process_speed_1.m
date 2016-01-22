@@ -103,12 +103,12 @@ z_mesh = linspace(z_min,z_max,option.zgridsize);
 [S1,S2,S3] = meshgrid(x_mesh,y_mesh,z_mesh); % [middle shortest longest]
 spatial_grid_pool = [S1(:),S2(:),S3(:)];
 
-for s = 1:2
+for s = 1:5
     for i=1:length(GPIS)
         GPIS(i).IS = [];
     end
     fprintf(['Run grid: ' num2str(s) '\n']);
-    spatial_grid = spatial_grid_pool(s:2:end,:);
+    spatial_grid = spatial_grid_pool(s:5:end,:);
     % --- Non-uniform grid ---
     % [S1,S2] = meshgrid(x_mesh,y_mesh);
     % xy_mesh = [S1(:) S2(:)];
@@ -226,7 +226,7 @@ for s = 1:2
     
     
     S_est = field_to_surface(thres_value,est,spatial_grid);
-    S_est = surface_refiner(S_est);
+    %S_est = surface_refiner(S_est);
     S_true = GPIS(end).X;
     
     % --- Create CB ONLY for the LAST prediction
@@ -236,7 +236,8 @@ for s = 1:2
     CB_field = mvnrnd(est,var_revised,option.CB_run);
     for i=1:option.CB_run
         CB_temp = field_to_surface(thres_value,CB_field(i,:)',spatial_grid);
-        CB{i} = surface_refiner(CB_temp);
+        %CB{i} = surface_refiner(CB_temp);
+        CB{i} = CB_temp;
         
     end
     
@@ -267,14 +268,17 @@ for s = 1:2
         out.S_est = S_est;
     else
         for i=1:option.CB_run
-            out.CB{i} = [out.CB{i};CB];
+            out.CB{i} = [out.CB{i};CB{i}];
         end
         out.S_est = [out.S_est;S_est];
     end
     clear CB;
     
 end
-
+out.S_est = surface_refiner(out.S_est);
+for i=1:option.CB_run
+    out.CB{i} = surface_refiner(out.CB{i});
+end
 out.thres = thres_value;
 out.S_true = S_true;
 [out.Haus,~] = HausdorffDist(out.S_est,S_true);
