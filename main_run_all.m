@@ -8,19 +8,21 @@ tic
 addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
-ifSave = 0;
+ifSave = 1;
 ifPlot = 0;
 %Pat_list = patient_list_speed([],0);
-Pat_list = patient_list_speed('P3',1);
+Pat_list = patient_list_speed('II',1);
 option = Configuration();
+
+savetag = 'save1';
 
 if (ifSave==1)
     c = clock;
-    folderName = ['./results/' num2str(c(1)) ...
+    folderName = ['./results/' savetag  num2str(c(1)) ...
         num2str(c(2)) num2str(c(3)) '_' num2str(c(4)) num2str(c(5)) '/'];
     mkdir(folderName);
     
-    plySaveFolder = ['./results/PLY' num2str(c(1)) ...
+    plySaveFolder = ['./results/PLY' savetag  num2str(c(1)) ...
         num2str(c(2)) num2str(c(3)) '_' num2str(c(4)) num2str(c(5)) '/'];
     mkdir(plySaveFolder);
     %fileID = fopen([folderName 'report.txt'],'w');
@@ -28,22 +30,23 @@ if (ifSave==1)
 end
 
 % --- Config parallel computing
-% N = 10;
-% poolobj = gcp('nocreate');
-% if isempty(poolobj)
-%     poolsize = 0;
-% else
-%     poolsize = poolobj.NumWorkers;
-% end
-% 
-% if poolsize == 0
-%     parpool('local',N);
-% else
-%     if poolsize~=N
-%         delete(poolobj);
-%         parpool('local',N);
-%     end
-% end
+%N = 10;
+%poolobj = gcp('nocreate');
+%if isempty(poolobj)
+%    poolsize = 0;
+%else
+%    poolsize = poolobj.NumWorkers;
+%end
+
+%poolsize = matlabpool('size');
+%if poolsize == 0
+%    matlabpool('local',N);
+%else
+%    if poolsize~=N
+%        matlabpool(close);
+%        matlabpool('local',N);
+%    end
+%end
 
 %predict(size(Pat_list,2)) = struct;
 for i=1:size(Pat_list,2)
@@ -88,77 +91,10 @@ for i=1:size(Pat_list,2)
     end
 end
 
-%if (ifSave==1)
-%    fclose(fileID);
-%end
-
-% if (ifPlot==1)
-%     %% --- Visualize results
-%     for i=1:size(Pat_list,2)
-%         fig_name = sprintf('Patient %s',Pat_list(i).name);
-%         figure('name',fig_name);
-%         
-%         subplot(1,2,1)
-%         scatter3(predict(i).S_est(:,1),predict(i).S_est(:,2),predict(i).S_est(:,3));
-%         title('Predicted');
-%         subplot(1,2,2)
-%         scatter3(predict(i).S_true(:,1),predict(i).S_true(:,2),predict(i).S_true(:,3));
-%         title('True');
-%     end
-%     
-%     % --- Plot side views of the TRUE and CB
-%     if (size(Pat_list,2)==1)
-%         figure('name','TRUE and CB')
-%         subplot(1,2,1)
-%         xlabel('X-Z view')
-%         hold on
-%         for i=1:option.CB_run
-%             %h = scatter(predict.CB{i}(:,1),predict.CB{i}(:,3),'filled','SizeData',30);
-%             plot(predict.CB{i}(:,1),predict.CB{i}(:,3),'b.','MarkerSize',5);
-%             %pH = arrayfun(@(x) allchild(x),h);
-%             %set(pH,'FaceAlpha',.01);
-%         end
-%         plot(predict.S_true(:,1),predict.S_true(:,3),'r.','MarkerSize',5);
-%         hold off
-%         
-%         subplot(1,2,2)
-%         hold on
-%         for i=1:option.CB_run
-%             plot(predict.CB{i}(:,2),predict.CB{i}(:,3),'b.','MarkerSize',5);
-%             %alpha(h,0.1);
-%         end
-%         xlabel('Y-Z view')
-%         plot(predict.S_true(:,2),predict.S_true(:,3),'r.','MarkerSize',5);
-%         hold off
-%         
-%         % --- Plot side views of TRUE and MEAN
-%         figure('name','TRUE and MEAN')
-%         subplot(1,2,1)
-%         xlabel('X-Z view')
-%         hold on
-%         plot(predict.S_true(:,1),predict.S_true(:,3),'r.','MarkerSize',5);
-%         plot(predict.S_est(:,1),predict.S_est(:,3),'b.','MarkerSize',5);
-%         hold off
-%         
-%         subplot(1,2,2)
-%         xlabel('Y-Z view')
-%         hold on
-%         plot(predict.S_true(:,2),predict.S_true(:,3),'r.','MarkerSize',5);
-%         plot(predict.S_est(:,2),predict.S_est(:,3),'b.','MarkerSize',5);
-%         hold off
-%     end
-%     
-%     
-%     %for i=1:size(Pat_list,2)
-%     %fprintf('Estimated time bandwith of patient %s: %.2f\n',Pat_list(i).name,predict(i).band_t);
-%     %fprintf('Haus distance of patient %s: %.2f\n',Pat_list(i).name,predict(i).Haus_dist);
-%     %end
-%     
-% end
+%matlabpool close;
 
 time_run = toc;
 fprintf('\nRun time: %.2f minutes\n',time_run/60);
 fprintf('Here is the music!\n')
 EndSound = load('handel');
 sound(EndSound.y,EndSound.Fs);
-%save('./results/run_all_071715_local')
