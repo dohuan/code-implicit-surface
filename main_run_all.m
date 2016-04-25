@@ -8,10 +8,10 @@ tic
 addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
-ifSave = 1;
+ifSave = 0;
 ifPlot = 0;
 %Pat_list = patient_list_speed([],0);
-Pat_list = patient_list_speed('II',1);
+Pat_list = patient_list_speed('HH',1);
 option = Configuration();
 
 savetag = 'save1';

@@ -1,4 +1,4 @@
-function out = patient_process_speed_1(pat_info,option)
+function out = patient_process_speed_H(pat_info,option)
 
 fprintf('Progressing patient %s...\n',pat_info.name);
 
@@ -10,11 +10,12 @@ time_convert = 30; % convert a month to days
 data_path = './Patient_Data/truncated_data/';
 out.name = pat_info.name;
 out.method = 2;
-GPIS(pat_info.numScan) = struct('X',[],'y',[],'IS',[],'scantime',[]);
+%GPIS(pat_info.numScan) = struct('X',[],'y',[],'IS',[],'scantime',[]);
 X_all = [];         % --- Used for standardizing data
 time_all = [];      % --- Used for standardizing data
 
-for i=1:pat_info.numScan
+count = 1;
+for i=pat_info.start_ix:pat_info.numScan
     file_name = [data_path pat_info.name num2str(i) '_inner'];
     load(file_name)
     
@@ -39,14 +40,15 @@ for i=1:pat_info.numScan
         min_(3) = min_temp(3);
     end
     X_temp = data.on_surface(:,1:3);
-    GPIS(i).y = data.on_surface(:,end);
-    GPIS(i).scantime = time_convert*data.time_stamp;
+    GPIS(count).y = data.on_surface(:,end);
+    GPIS(count).scantime = time_convert*data.time_stamp;
     %time_temp = time_convert*data.time_stamp*ones(size(X_temp,1),1);
     %GPIS(i).X = [time_temp X_temp];
-    GPIS(i).X = X_temp;
-    X_all = [X_all; GPIS(i).X];
-    time_all = [time_all;GPIS(i).scantime];
+    GPIS(count).X = X_temp;
+    X_all = [X_all; GPIS(count).X];
+    time_all = [time_all;GPIS(count).scantime];
     
+    count = count + 1;
 end
 
 spatial_offset = 0;
@@ -67,7 +69,8 @@ if (option.ifStand==1)
     %std_info(4).std = sqrt(var(time_all));
     
     % --- Standardize spatial data and transform time
-    for i=1:pat_info.numScan
+    %for i=1:pat_info.numScan
+    for i=1:length(GPIS)
         for k=1:3
             GPIS(i).X(:,k) = (GPIS(i).X(:,k)-std_info(k).mean)./std_info(k).std;
         end
@@ -147,8 +150,8 @@ for s = 1:option.grid_size
     
     % ========== Compute spatio-temporal up to T-1 as observations ========
     
-    for t=1:pat_info.numScan-1
-        GPIS(1:end-1) = compute_GPIS_temporal(GPIS(t).scantime,GPIS(1:pat_info.numScan-1), ...
+    for t=1:length(GPIS)-1
+        GPIS(1:end-1) = compute_GPIS_temporal(GPIS(t).scantime,GPIS(1:length(GPIS)-1), ...
             spatial_grid, pat_info, std_info,time_info,option);
         thres(t,1) = thresCal(pat_info.name,GPIS(t).IS.est,GPIS(t).X,...
             spatial_grid,option,0);

@@ -1,7 +1,7 @@
 function option = Configuration()
     % regular grid size: 40x40x40
-    option.zgridsize = 40; % 20
-    option.xygridsize = 40;
+    option.zgridsize = 5; % 20
+    option.xygridsize = 5;
     option.pts_mode = 0; % 0: only on surface, 1: inner line included, 2: outter surface included
     option.cutoff = 1000;
     option.edgeLimit = 1; % 4e-3
@@ -21,7 +21,7 @@ function option = Configuration()
     
     option.CB_run = 100; % number of MC run for credible band
     
-    option.EM_run = 10;
-    option.grid_size = 7;
+    option.EM_run = 30;  % 10
+    option.grid_size = 1; % 7
     
 end

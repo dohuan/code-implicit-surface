@@ -581,6 +581,66 @@ set(gca,'FontSize',16);
 hold off
 
 
+% --------- Plot Haus dist vs. std of scanning periods (with Haus dist MANUALLY inserted)
+
+Pat_list = patient_list([],0);
+
+a(1).Haus_dist = 17.86;
+a(2).Haus_dist = 11.28;
+a(3).Haus_dist = 8.32;
+a(4).Haus_dist = 9.80;
+a(5).Haus_dist = 9.85;
+a(6).Haus_dist = 6.68;
+a(7).Haus_dist = 8.32;
+for i=1:size(Pat_list,2)
+	%M = load([saveFile Pat_list(i).name]); 
+	predict(i).Haus_dist = a(i).Haus_dist;
+	clear M;
+end
+hold on
+for i=1:size(predict,2)
+	x(i) = Pat_list(i).numScan;
+	y(i) = predict(i).Haus_dist;
+	plot(Pat_list(i).numScan,predict(i).Haus_dist,'ks','LineWidth',2);
+	text(Pat_list(i).numScan+0.2,predict(i).Haus_dist+0.2,Pat_list(i).ID);
+end
+p = polyfit(x,y,1);
+yfit =  p(1) * x + p(2);
+yresid = y - yfit;
+SSresid = sum(yresid.^2);
+SStotal = (length(y)-1) * var(y);
+rsq = 1 - SSresid/SStotal;
+t = 0:1:8;
+yplot = p(1)*t + p(2);
+std_error = sqrt(SSresid/length(y));
+fprintf('R square: %.3f\n',rsq);
+fprintf('Standard Error: %.3f\n',std_error);
+plot(t,yplot,'k','LineWidth',2);
+xlim([2 8]);
+xlabel('Number of scans','FontSize',14);
+ylabel('Hausdoff distance','FontSize',14);
+box on
+set(gca,'FontSize',16);
+
+figure(2)
+p2 = polyfit(x,y,2);
+yfit = p2(1)*x.^2+p2(2)*x+p2(3);
+yresid = y - yfit;
+SSresid = sum(yresid.^2);
+SStotal = (length(y)-1) * var(y);
+rsq = 1 - SSresid/SStotal;
+t = 0:1:8;
+yplot = p2(1)*t.^2 + p2(2)*t + p2(3);
+std_error = sqrt(SSresid/length(y));
+fprintf('R square: %.3f\n',rsq);
+fprintf('Standard Error: %.3f\n',std_error);
+plot(t,yplot,'k','LineWidth',2);
+xlim([2 8]);
+xlabel('Number of scans','FontSize',14);
+ylabel('Hausdoff distance','FontSize',14);
+box on
+set(gca,'FontSize',16);
+
 
 % --------- check symmetric problem due to numerical floating error ---------
 temp = predict.var_test-predict.var_test';
@@ -1102,6 +1162,7 @@ for i =1:5
 	plot(normSigw_track,plotstyle{i},'LineWidth',2);
 end
 
+
 figure(1)
 box on
 xlabel('iterations','FontSize',16);
@@ -1119,6 +1180,10 @@ set(gca,'FontSize',16);
 
 % ------------------
 close all
+A_mean = mean(A_track,3);
+A_mean = A_mean(:,end);
+Sigw_mean = mean(Sigw_track,4);
+Sigw_mean = Sigw_mean(:,:,end);
 for i=1:count
 	for j=1:5
 		Atemp = A_track;
@@ -1133,8 +1198,12 @@ for i=1:count
 		end
 		distA(j,i) = max(tmpA);
 		distSigw(j,i) = max(tmpSigw);
+		
+		distAmean(j,i) = norm(A_track(:,i,j)-A_mean);
+		distSigwmean(j,i) = norm(Sigw_track(:,:,i,j)-Sigw_mean,'fro');
 	end
 end
+
 
 for j=1:5
 	figure(1)
@@ -1144,6 +1213,15 @@ for j=1:5
 	figure(2)
 	hold on
 	plot(distSigw(j,:),plotstyle{j},'LineWidth',2);
+	
+	figure(3)
+	hold on
+	plot(distAmean(j,:),plotstyle{j},'LineWidth',2);
+	
+	figure(4)
+	hold on
+	plot(distSigwmean(j,:),plotstyle{j},'LineWidth',2);
+	
 end
 
 figure(1)
@@ -1156,6 +1234,18 @@ figure(2)
 box on
 xlabel('iterations','FontSize',16);
 ylabel('Evolution of differences of \Sigma_w','FontSize',16);
+set(gca,'FontSize',16);
+
+figure(3)
+box on
+xlabel('iterations','FontSize',16);
+ylabel('Evolution of differences of A to A_(\inf)','FontSize',16);
+set(gca,'FontSize',16);
+
+figure(4)
+box on
+xlabel('iterations','FontSize',16);
+ylabel('Evolution of differences of \Sigma_w to \Sigma_w_(\inf)','FontSize',16);
 set(gca,'FontSize',16);
 
 
@@ -1174,3 +1264,16 @@ z_ = reshape(z,100,100);
  surf(z_,'EdgeColor','none');
  xlabel('\Sigma_w')
  ylabel('A')
+ 
+ 
+ 
+ 
+ % ---------- Convert all patients' last scans to PLY
+patlist = patient_list_speed([],0);
+for i=1:length(patlist) 
+	loadfilename = ['./Patient_Data/truncated_data/' patlist(i).name num2str(patlist(i).numScan) '_inner' ];
+	savefilename = ['./Patient_Data/PLY_true_truncated/' patlist(i).name '_true.ply'];
+	load(loadfilename);
+	exportMesh(data.on_surface,savefilename);
+	clear data;
+end
