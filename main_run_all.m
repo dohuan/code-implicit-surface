@@ -11,10 +11,11 @@ addpath(genpath('./HausdorffDist'))
 ifSave = 0;
 ifPlot = 0;
 %Pat_list = patient_list_speed([],0);
-Pat_list = patient_list_speed('HH',1);
+Pat_list = patient_list_speed('HH',1,'last3');
 option = Configuration();
 
-savetag = 'save1';
+%  save1: results for using the whole horizon
+savetag = 'saveLast-3-';
 
 if (ifSave==1)
     c = clock;

@@ -588,7 +588,7 @@ Pat_list = patient_list([],0);
 a(1).Haus_dist = 17.86;
 a(2).Haus_dist = 11.28;
 a(3).Haus_dist = 8.32;
-a(4).Haus_dist = 9.80;
+a(4).Haus_dist = 26.06;
 a(5).Haus_dist = 9.85;
 a(6).Haus_dist = 6.68;
 a(7).Haus_dist = 8.32;
@@ -612,25 +612,6 @@ SStotal = (length(y)-1) * var(y);
 rsq = 1 - SSresid/SStotal;
 t = 0:1:8;
 yplot = p(1)*t + p(2);
-std_error = sqrt(SSresid/length(y));
-fprintf('R square: %.3f\n',rsq);
-fprintf('Standard Error: %.3f\n',std_error);
-plot(t,yplot,'k','LineWidth',2);
-xlim([2 8]);
-xlabel('Number of scans','FontSize',14);
-ylabel('Hausdoff distance','FontSize',14);
-box on
-set(gca,'FontSize',16);
-
-figure(2)
-p2 = polyfit(x,y,2);
-yfit = p2(1)*x.^2+p2(2)*x+p2(3);
-yresid = y - yfit;
-SSresid = sum(yresid.^2);
-SStotal = (length(y)-1) * var(y);
-rsq = 1 - SSresid/SStotal;
-t = 0:1:8;
-yplot = p2(1)*t.^2 + p2(2)*t + p2(3);
 std_error = sqrt(SSresid/length(y));
 fprintf('R square: %.3f\n',rsq);
 fprintf('Standard Error: %.3f\n',std_error);
@@ -1277,3 +1258,42 @@ for i=1:length(patlist)
 	exportMesh(data.on_surface,savefilename);
 	clear data;
 end
+
+
+
+% ---------- Fix data error with LAST-3 setup
+% --- Subtract all scan dates with the last
+data_path = './Patient_Data/truncated_data_last3/';
+patList = patient_list_speed([],0,'last3');
+for i=1:length(patList)
+	fprintf('Fixing patient: %s\n',patList(i).name);
+	for j=1:patList(i).numScan
+		file_name = [data_path patList(i).name num2str(j) '_inner'];
+		load(file_name)
+		if (j==1)
+			timelast = data.time_stamp;
+		end
+		data.time_stamp = data.time_stamp-timelast;
+		save(file_name,'data');
+	end
+end
+
+
+% --- Plot slice of 3D structure
+z_slice = unique(S_est(:,end),'rows','stable');
+for i=1:size(z_slice,1)
+	figure(i);
+	index_slice = find(S_est(:,3)==z_slice(i));
+	%S_plot = predict.S_est(index_slice,:);
+	%scatter3(S_plot(:,1),S_plot(:,2),S_plot(:,3));
+	S_plot = S_est(index_slice,1:2);
+	plot(S_plot(:,1),S_plot(:,2),'bo');
+end
+
+
+
+
+
+
+
+

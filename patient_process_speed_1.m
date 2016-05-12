@@ -7,7 +7,7 @@ min_ = [1000 1000 1000];
 
 time_convert = 30; % convert a month to days
 
-data_path = './Patient_Data/truncated_data/';
+data_path = './Patient_Data/truncated_data_LAST-3/';
 out.name = pat_info.name;
 out.method = 2;
 GPIS(pat_info.numScan) = struct('X',[],'y',[],'IS',[],'scantime',[]);
