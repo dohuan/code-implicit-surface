@@ -8,7 +8,7 @@ tic
 addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
-ifSave = 0;
+ifSave = 1;
 ifPlot = 0;
 %Pat_list = patient_list_speed([],0);
 Pat_list = patient_list_speed('HH',1,'last3');
