@@ -584,11 +584,17 @@ hold off
 % --------- Plot Haus dist vs. std of scanning periods (with Haus dist MANUALLY inserted)
 
 Pat_list = patient_list([],0);
-
+Pat_list(1).ID = 'P1';
+Pat_list(2).ID = 'P2';
+Pat_list(3).ID = 'P3';
+Pat_list(4).ID = 'P4';
+Pat_list(5).ID = 'P5';
+Pat_list(6).ID = 'P6';
+Pat_list(7).ID = 'P7';
 a(1).Haus_dist = 17.86;
 a(2).Haus_dist = 11.28;
 a(3).Haus_dist = 8.32;
-a(4).Haus_dist = 26.06;
+a(4).Haus_dist = 9.8;
 a(5).Haus_dist = 9.85;
 a(6).Haus_dist = 6.68;
 a(7).Haus_dist = 8.32;
@@ -610,12 +616,17 @@ yresid = y - yfit;
 SSresid = sum(yresid.^2);
 SStotal = (length(y)-1) * var(y);
 rsq = 1 - SSresid/SStotal;
-t = 0:1:8;
+
+t = 0:.2:8;
+p2 = polyfit(x,y,2);
+yplot2 = p2(1)*t.^2+p2(2)*t+p2(3);
+
 yplot = p(1)*t + p(2);
 std_error = sqrt(SSresid/length(y));
 fprintf('R square: %.3f\n',rsq);
 fprintf('Standard Error: %.3f\n',std_error);
 plot(t,yplot,'k','LineWidth',2);
+plot(t,yplot2,'k--','LineWidth',2);
 xlim([2 8]);
 xlabel('Number of scans','FontSize',14);
 ylabel('Hausdoff distance','FontSize',14);
@@ -709,7 +720,8 @@ for i=1:7
 	end
 	plot(temp,mark{i},'MarkerSize',10,'LineWidth',1.5);
 end
-legend('H','I','J','K','P10','P12','P13');
+%legend('H','I','J','K','P10','P12','P13');
+legend('P1','P2','P3','P4','P5','P6','P7');
 box on
 xlabel('Scan','FontSize',16);
 ylabel('Scan Time (days)','FontSize',16);
