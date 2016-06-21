@@ -1304,7 +1304,16 @@ end
 
 
 
-
+% -------------------------
+figure(1)
+hold on
+for i=1:7
+	loadFile = ['./Patient_Data/HPCC_data/HH' num2str(i) '_inner'];
+	load(loadFile);
+	scatter3(data.on_surface(:,1), data.on_surface(:,2), data.on_surface(:,3), 'filled');
+end
+legend('scan 1','scan 2','scan 4','scan 5','scan 6','scan 7');
+hold off
 
 
 
