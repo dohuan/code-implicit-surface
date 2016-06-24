@@ -1307,12 +1307,25 @@ end
 % -------------------------
 figure(1)
 hold on
-for i=1:7
-	loadFile = ['./Patient_Data/HPCC_data/HH' num2str(i) '_inner'];
+C = colormap('lines');
+for i=1:5
+	loadFile = ['./Patient_Data/truncated_data/KK' num2str(i) '_inner'];
 	load(loadFile);
-	scatter3(data.on_surface(:,1), data.on_surface(:,2), data.on_surface(:,3), 'filled');
+	C_temp = repmat(C(i,:), [size(data.on_surface,1) 1]);
+	subplot(1,5,i)
+	h(i) = scatter3(data.on_surface(:,1), data.on_surface(:,2), data.on_surface(:,3),[],C_temp, 'filled');
+	%h(i) = scatter3(data.on_surface(:,1), data.on_surface(:,2), data.on_surface(:,3), 'filled');
+	view([0 0])
+	h_legend{i} = ['scan ' num2str(i)];
+	xlabel(['scan ' num2str(i)]);
+	zlim([140 340]);
+	box on
 end
-legend('scan 1','scan 2','scan 4','scan 5','scan 6','scan 7');
+%legend(h,'scan 1','scan 2','scan 4','scan 5','scan 6','scan 7');
+%legend(h_legend);
+%[~, I] = unique(C);
+%p = findobj(gca,'Type','Patch');
+%legend(p(I),h_legend);
 hold off
 
 
