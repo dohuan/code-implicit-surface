@@ -584,17 +584,11 @@ hold off
 % --------- Plot Haus dist vs. std of scanning periods (with Haus dist MANUALLY inserted)
 
 Pat_list = patient_list([],0);
-Pat_list(1).ID = 'P1';
-Pat_list(2).ID = 'P2';
-Pat_list(3).ID = 'P3';
-Pat_list(4).ID = 'P4';
-Pat_list(5).ID = 'P5';
-Pat_list(6).ID = 'P6';
-Pat_list(7).ID = 'P7';
+
 a(1).Haus_dist = 17.86;
 a(2).Haus_dist = 11.28;
 a(3).Haus_dist = 8.32;
-a(4).Haus_dist = 9.8;
+a(4).Haus_dist = 26.06;
 a(5).Haus_dist = 9.85;
 a(6).Haus_dist = 6.68;
 a(7).Haus_dist = 8.32;
@@ -616,17 +610,12 @@ yresid = y - yfit;
 SSresid = sum(yresid.^2);
 SStotal = (length(y)-1) * var(y);
 rsq = 1 - SSresid/SStotal;
-
-t = 0:.2:8;
-p2 = polyfit(x,y,2);
-yplot2 = p2(1)*t.^2+p2(2)*t+p2(3);
-
+t = 0:1:8;
 yplot = p(1)*t + p(2);
 std_error = sqrt(SSresid/length(y));
 fprintf('R square: %.3f\n',rsq);
 fprintf('Standard Error: %.3f\n',std_error);
 plot(t,yplot,'k','LineWidth',2);
-plot(t,yplot2,'k--','LineWidth',2);
 xlim([2 8]);
 xlabel('Number of scans','FontSize',14);
 ylabel('Hausdoff distance','FontSize',14);
@@ -720,8 +709,7 @@ for i=1:7
 	end
 	plot(temp,mark{i},'MarkerSize',10,'LineWidth',1.5);
 end
-%legend('H','I','J','K','P10','P12','P13');
-legend('P1','P2','P3','P4','P5','P6','P7');
+legend('H','I','J','K','P10','P12','P13');
 box on
 xlabel('Scan','FontSize',16);
 ylabel('Scan Time (days)','FontSize',16);
@@ -1304,17 +1292,69 @@ end
 
 
 
-% -------------------------
-figure(1)
-hold on
-for i=1:7
-	loadFile = ['./Patient_Data/HPCC_data/HH' num2str(i) '_inner'];
-	load(loadFile);
-	scatter3(data.on_surface(:,1), data.on_surface(:,2), data.on_surface(:,3), 'filled');
+
+% --- save GPIS and std_info
+saveFile = './results/GPIS-saved/P3';
+for i=1:length(GPIS)-1
+	GPIS_truncated(i).IS.hyp = GPIS(i).IS.hyp;
 end
-legend('scan 1','scan 2','scan 4','scan 5','scan 6','scan 7');
+save(saveFile,'GPIS_truncated','std_info','time_info','pat_info');
+
+
+
+
+
+
+% --- Compute hyper parameter
+file = './results/hyperParameter.txt';
+fileID = fopen(file,'w');
+fprintf(fileID,'ID,sig_t,sig_x,sig_y,sig_z \n');
+data(1).ID = 'H';
+data(1).num = 6;
+data(2).ID = 'I';
+data(2).num = 5;
+data(3).ID = 'J';
+data(3).num = 4;
+data(4).ID = 'K';
+data(4).num = 4;
+data(5).ID = 'P0';
+data(5).num = 3;
+data(6).ID = 'P2';
+data(6).num = 5;
+data(7).ID = 'P3';
+data(7).num = 3;
+
+for i=1:length(data)
+	loadFile = ['./results/GPIS-saved/' data(i).ID];
+	load(loadFile);
+	hyptrack = [];
+	for j=1:length(GPIS_truncated)
+		hyptmp = exp(GPIS_truncated(j).IS.hyp.cov(1:4));
+		hyptmp(1) = hyptmp(1)*(time_info.max-time_info.min)+time_info.min;
+		hyptmp(2) = hyptmp(2)*std_info(1).std;
+		hyptmp(3) = hyptmp(3)*std_info(2).std;
+		hyptmp(4) = hyptmp(4)*std_info(3).std;
+		
+		hyptrack = [hyptrack; hyptmp];
+	end
+	hyp = mean(hyptrack);
+	fprintf(fileID,'%s, %.2f, %.2f, %.2f, %.2f \n',data(i).ID, hyp(1), hyp(2), hyp(3), hyp(4));
+end
+fclose(fileID);
+
+
+
+
+% --- Plot P2 posterior mean
+
+hold on
+plot(GPIS(5).IS.est,'+')
+plot(est,'.')
+plot([0 length(est)],[thres_value thres_value],'k--','LineWidth',2)
+plot([0 length(est)],[thres(end) thres(end)],'k-','LineWidth',2)
 hold off
-
-
-
-
+axis tight
+box on
+xlabel('Points');
+ylabel('Potential field');
+set(gca,'FontSize',16);
