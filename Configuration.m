@@ -1,7 +1,7 @@
 function option = Configuration()
-    % regular grid size: 40x40x40
-    option.zgridsize = 40; % 20
-    option.xygridsize = 40;
+    % grid size in published journal: 40x40x40
+    option.zgridsize = 20; % 20
+    option.xygridsize = 20;
     option.pts_mode = 0; % 0: only on surface, 1: inner line included, 2: outter surface included
     option.cutoff = 1000;
     option.edgeLimit = 1; % 4e-3
@@ -16,6 +16,6 @@ function option = Configuration()
     option.ifStand = 1; % 0: not standardize data, 1: standardize data
     option.CB_run = 100; % number of MC run for credible band
     option.EM_run = 10; % 10
-    option.grid_size = 6; % 7
+    option.grid_size = 1; % 7
     
 end

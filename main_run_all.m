@@ -8,10 +8,10 @@ tic
 addpath(genpath('./gpml'))
 addpath(genpath('./HausdorffDist'))
 
-ifSave = 1;
+ifSave = 0;
 ifPlot = 0;
 %Pat_list = patient_list_speed([],0);
-Pat_list = patient_list_speed('HH',1,'last3');
+Pat_list = patient_list_speed('KK',1,'all'); % 'all' or 'Last-3'
 option = Configuration();
 
 %  save1: results for using the whole horizon
