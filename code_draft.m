@@ -1388,7 +1388,53 @@ set(gca,'FontSize',16);
 
 
 % --- Plot figure of GP field evolves with time
-load P2_test_postMean
+load H
+% --- Slice on z-axis
+z_line = unique(spatial_grid(:,end),'rows','stable');
+slideIx = 15; % 15
+num = length(GPIS)-1;
+figure(1)
+dates = {'t=0 (years)','t=5.76 (years)','t=8.68 (years)'};
+count = 1;
+for i=[1,3,6]
+	subplot(3,1,count)
+	ix = find(spatial_grid(:,3)==z_line(slideIx));
+	xy = spatial_grid(ix,1:2);
+	xy(:,1)=xy(:,1)*std_info(1).std+std_info(1).mean;
+	xy(:,2)=xy(:,2)*std_info(2).std+std_info(2).mean;
+	field = GPIS(i).IS.est(ix,1);
+	h=pcolor(reshape(xy(:,1),20,20),reshape(xy(:,2),20,20),reshape(field,20,20));
+	set(h, 'EdgeColor', 'none');
+	box on
+	title(dates{count});
+	count = count + 1;
+	xlabel('(mm)');
+	ylabel('(mm)');
+	colorbar
+end
+
+
+
+
+% --- Slice on x-axis
+x_line = unique(spatial_grid(:,1),'rows','stable');
+slideIx = 13;
+num = length(GPIS)-1;
+figure(1)
+
+for i=1:length(GPIS)-1
+	subplot(1,num,i)
+	%title(sprintf('t=%d',i))
+	ix = find(spatial_grid(:,1)==x_line(slideIx));
+	yz = spatial_grid(ix,1:2);
+	yz(:,1)=yz(:,1)*std_info(2).std+std_info(2).mean;
+	yz(:,2)=yz(:,2)*std_info(3).std+std_info(3).mean;
+	field = GPIS(i).IS.est(ix,1);
+	h=pcolor(reshape(yz(:,1),20,20),reshape(yz(:,2),20,20),reshape(field,20,20));
+	set(h, 'EdgeColor', 'none');
+	
+end
+
 
 
 
