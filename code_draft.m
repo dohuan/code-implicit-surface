@@ -1388,15 +1388,15 @@ set(gca,'FontSize',16);
 
 
 % --- Plot figure of GP field evolves with time
-load H
+load HH
 % --- Slice on z-axis
 z_line = unique(spatial_grid(:,end),'rows','stable');
 slideIx = 15; % 15
 num = length(GPIS)-1;
-figure(1)
 dates = {'t=0 (years)','t=5.76 (years)','t=8.68 (years)'};
 count = 1;
 for i=[1,3,6]
+	figure(1)
 	subplot(3,1,count)
 	ix = find(spatial_grid(:,3)==z_line(slideIx));
 	xy = spatial_grid(ix,1:2);
@@ -1407,11 +1407,33 @@ for i=[1,3,6]
 	set(h, 'EdgeColor', 'none');
 	box on
 	title(dates{count});
-	count = count + 1;
 	xlabel('(mm)');
 	ylabel('(mm)');
 	colorbar
+	
+	figure(2)
+	subplot(3,1,count)
+	% --- Interpolate to make graph finer
+	X = reshape(xy(:,1),20,20);
+	Y = reshape(xy(:,2),20,20);
+	V = reshape(field,20,20);
+	%xy_(:,1) = linspace(min(xy(:,1)),max(xy(:,1)),10000);
+	%xy_(:,2) = linspace(min(xy(:,2)),max(xy(:,2)),10000);
+	%X_ = reshape(xy_(:,1),100,100);
+	%Y_ = reshape(xy_(:,2),100,100);
+	[X_,Y_] = meshgrid(linspace(min(xy(:,1)),max(xy(:,1)),100),linspace(min(xy(:,2)),max(xy(:,2)),100));
+	V_ = interp2(X,Y,V,X_,Y_);
+	h=pcolor(X_,Y_,V_);
+	set(h, 'EdgeColor', 'none');
+	box on
+	title(dates{count});
+	xlabel('(mm)');
+	ylabel('(mm)');
+	colorbar
+	
+	count = count + 1;
 end
+
 
 
 
