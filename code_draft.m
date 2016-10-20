@@ -1389,15 +1389,18 @@ set(gca,'FontSize',16);
 
 % --- Plot figure of GP field evolves with time
 load HH
+set(0,'defaultfigurecolor',[1 1 1])
 % --- Slice on z-axis
 z_line = unique(spatial_grid(:,end),'rows','stable');
 slideIx = 15; % 15
 num = length(GPIS)-1;
 dates = {'t=0 (years)','t=5.76 (years)','t=8.68 (years)'};
 count = 1;
+%figure(1)
+%set(figure(1),'position',[5 20 550 950]);
 for i=[1,3,6]
-	figure(1)
-	subplot(3,1,count)
+	figure(count)
+	%subplot(3,1,count)
 	ix = find(spatial_grid(:,3)==z_line(slideIx));
 	xy = spatial_grid(ix,1:2);
 	xy(:,1)=xy(:,1)*std_info(1).std+std_info(1).mean;
@@ -1410,8 +1413,10 @@ for i=[1,3,6]
 	xlabel('(mm)');
 	ylabel('(mm)');
 	colorbar
+	shading interp;
+    lighting phong;
 	
-	figure(2)
+	figure(10)
 	subplot(3,1,count)
 	% --- Interpolate to make graph finer
 	X = reshape(xy(:,1),20,20);
@@ -1421,12 +1426,12 @@ for i=[1,3,6]
 	%xy_(:,2) = linspace(min(xy(:,2)),max(xy(:,2)),10000);
 	%X_ = reshape(xy_(:,1),100,100);
 	%Y_ = reshape(xy_(:,2),100,100);
-	[X_,Y_] = meshgrid(linspace(min(xy(:,1)),max(xy(:,1)),200),linspace(min(xy(:,2)),max(xy(:,2)),200));
+	[X_,Y_] = meshgrid(linspace(min(xy(:,1)),max(xy(:,1)),100),linspace(min(xy(:,2)),max(xy(:,2)),100));
 	V_ = interp2(X,Y,V,X_,Y_);
 	h=pcolor(X_,Y_,V_);
 	S = field_to_surface(.01,V_(:),[X_(:) Y_(:)]);
 	S=surface_refiner([S zeros(size(S,1),1)]);
-	S_interp = [(interp1((1:length(S(:,1)))',S(:,1),linspace(1,length(S(:,1)),200)))' (interp1((1:length(S(:,2)))',S(:,2),linspace(1,length(S(:,2)),200)))'];
+	S_interp = [(interp1((1:length(S(:,1)))',S(:,1),linspace(1,length(S(:,1)),150)))' (interp1((1:length(S(:,2)))',S(:,2),linspace(1,length(S(:,2)),150)))'];
 	K = convhull(S_interp(:,1),S_interp(:,2));
 	hold on
 	plot(S_interp(K,1),S_interp(K,2),'w-','LineWidth',1.5);
@@ -1439,8 +1444,15 @@ for i=[1,3,6]
 	colorbar
 	shading interp
 	
+	figure(count)
+	%subplot(3,1,count)
+	hold on
+	plot(S_interp(K,1),S_interp(K,2),'w-','LineWidth',1.5);
+	hold off
+	
 	count = count + 1;
 end
+
 
 
 
