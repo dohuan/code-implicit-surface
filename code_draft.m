@@ -1409,12 +1409,13 @@ for i=[1,3,6]
 	h=pcolor(reshape(xy(:,1),20,20),reshape(xy(:,2),20,20),reshape(field,20,20));
 	set(h, 'EdgeColor', 'none');
 	box on
-	title(dates{count});
-	xlabel('(mm)');
-	ylabel('(mm)');
+	title(dates{count},'FontSize',16);
+	xlabel('(mm)','FontSize',16);
+	ylabel('(mm)','FontSize',16);
 	colorbar
 	shading interp;
     lighting phong;
+	set(gca,'FontSize',15)
 	
 	figure(10)
 	subplot(3,1,count)
