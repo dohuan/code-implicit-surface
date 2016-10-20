@@ -1421,15 +1421,23 @@ for i=[1,3,6]
 	%xy_(:,2) = linspace(min(xy(:,2)),max(xy(:,2)),10000);
 	%X_ = reshape(xy_(:,1),100,100);
 	%Y_ = reshape(xy_(:,2),100,100);
-	[X_,Y_] = meshgrid(linspace(min(xy(:,1)),max(xy(:,1)),100),linspace(min(xy(:,2)),max(xy(:,2)),100));
+	[X_,Y_] = meshgrid(linspace(min(xy(:,1)),max(xy(:,1)),200),linspace(min(xy(:,2)),max(xy(:,2)),200));
 	V_ = interp2(X,Y,V,X_,Y_);
 	h=pcolor(X_,Y_,V_);
+	S = field_to_surface(.01,V_(:),[X_(:) Y_(:)]);
+	S=surface_refiner([S zeros(size(S,1),1)]);
+	S_interp = [(interp1((1:length(S(:,1)))',S(:,1),linspace(1,length(S(:,1)),200)))' (interp1((1:length(S(:,2)))',S(:,2),linspace(1,length(S(:,2)),200)))'];
+	K = convhull(S_interp(:,1),S_interp(:,2));
+	hold on
+	plot(S_interp(K,1),S_interp(K,2),'w-','LineWidth',1.5);
+	hold off
 	set(h, 'EdgeColor', 'none');
 	box on
 	title(dates{count});
 	xlabel('(mm)');
 	ylabel('(mm)');
 	colorbar
+	shading interp
 	
 	count = count + 1;
 end
