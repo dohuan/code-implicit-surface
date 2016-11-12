@@ -1237,9 +1237,17 @@ axis tight
 %A_ = (100-5)*(A-min(A))./(max(A)-min(A))+5;
 
 V = reshape(A,5,5,5);
-X = reshape(spatial_grid(:,1),5,5,5);
-Y = reshape(spatial_grid(:,1),5,5,5);
-Z = reshape(spatial_grid(:,1),5,5,5);
+%X = reshape(spatial_grid(:,1),5,5,5);
+%Y = reshape(spatial_grid(:,1),5,5,5);
+%Z = reshape(spatial_grid(:,1),5,5,5);
+
+iscale = 5;
+
+gridtmp_x = linspace(min(spatial_grid(:,1)),max(spatial_grid(:,1)),iscale);
+gridtmp_y = linspace(min(spatial_grid(:,2)),max(spatial_grid(:,2)),iscale);
+gridtmp_z = linspace(min(spatial_grid(:,3)),max(spatial_grid(:,3)),iscale);
+
+[X,Y,Z] = meshgrid(gridtmp_x,gridtmp_y,gridtmp_z);
 
 iscale = 50;
 
@@ -1248,6 +1256,7 @@ gridtmp_y = linspace(min(spatial_grid(:,2)),max(spatial_grid(:,2)),iscale);
 gridtmp_z = linspace(min(spatial_grid(:,3)),max(spatial_grid(:,3)),iscale);
 
 [X_,Y_,Z_] = meshgrid(gridtmp_x,gridtmp_y,gridtmp_z);
+
 V_ = interp3(X,Y,Z,V,X_,Y_,Z_);
 V_ = V_(:);
 C = colormap('lines');
@@ -1255,12 +1264,38 @@ for i=1:numel(V_)
 	ix = round((64-1)*(V_(i)-min(V_))./(max(V_)-min(V_))+1); % color index
 	V_ci(i,:) = C(ix,:);
 end
-h=scatter3(X_(:),Y_(:),Z_(:),V_ci,'filled');
-h.FaceAlpha = .2;
+
+z_attitude = 0; zoffset = .07;
+Xtmp = X_all(5001:6000,:);
+ix_slice = find(Xtmp(:,3)>z_attitude-zoffset&Xtmp(:,3)<z_attitude+zoffset);
+X_pre = Xtmp(ix_slice,1:2);
+K = convhull(X_pre);
+X_pre = X_pre(K,:);
+
+Xtmp = X_all(6001:7000,:);
+ix_slice = find(Xtmp(:,3)>z_attitude-zoffset&Xtmp(:,3)<z_attitude+zoffset);
+X_cur = Xtmp(ix_slice,1:2);
+K = convhull(X_cur);
+X_cur = X_cur(K,:);
 
 
 
 
+
+h=scatter3(X_(:),Y_(:),Z_(:),10*ones(size(V_ci,1),1),V_ci,'filled','MarkerFaceAlpha',.2);
+%h.FaceAlpha = .2;
+
+xslice = [];%[-2,0,2]; 
+yslice = [];%[-2,0,2]; 
+zslice = [-2,-1,0];%[-2,0,2]; 
+
+h=slice(X_,Y_,Z_,V_,xslice,yslice,zslice);
+shading interp
+hold on
+scatter3(X_all(5001:6000,1),X_all(5001:6000,2),X_all(5001:6000,3),'ks');
+scatter3(X_all(6001:7000,1),X_all(6001:7000,2),X_all(6001:7000,3),'ko');
+plot3(X_pre(:,1),X_pre(:,2),0.01*ones(size(X_pre,1),1),'w-','LineWidth',2);
+plot3(X_cur(:,1),X_cur(:,2),0.01*ones(size(X_cur,1),1),'w--','LineWidth',2);
 
 
 

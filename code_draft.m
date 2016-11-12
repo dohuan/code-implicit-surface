@@ -1093,11 +1093,11 @@ set(gca,'FontSize',16);
 
 % ------- Run EM with different initial values of A and Sig_w
 % ONLY USE FOR PATIENT H
-plotstyle{1} = 'b-.';
-plotstyle{2} = 'r--';
-plotstyle{3} = 'b-';
-plotstyle{4} = 'g-';
-plotstyle{5} = 'r:';
+plotstyle{1} = 'bd-';
+plotstyle{2} = 'rs--';
+plotstyle{3} = 'b*-';
+plotstyle{4} = 'go-';
+plotstyle{5} = 'r+:';
 
 for i =1:5
 	count = 1;
@@ -1135,25 +1135,31 @@ for i =1:5
 	%figure(i)
 	%plot(logL(:,i),plotstyle{i},'LineWidth',2);
 	figure(1)
+	subplot(2,1,1)
 	hold on
 	plot(normA_track,plotstyle{i},'LineWidth',2);
 	
-	figure(2)
+	%figure(2)
+	subplot(2,1,2)
 	hold on
 	plot(normSigw_track,plotstyle{i},'LineWidth',2);
 end
 
 
 figure(1)
+subplot(2,1,1)
 box on
 xlabel('iterations','FontSize',16);
 ylabel('Norms of the increments of A','FontSize',16);
+title('(a)');
 set(gca,'FontSize',16);
 
-figure(2)
+%figure(2)
+subplot(2,1,2)
 box on
 xlabel('iterations','FontSize',16);
 ylabel('Norms of the increments of \Sigma_w','FontSize',16);
+title('(b)');
 set(gca,'FontSize',16);
 
 
