@@ -1278,10 +1278,6 @@ X_cur = Xtmp(ix_slice,1:2);
 K = convhull(X_cur);
 X_cur = X_cur(K,:);
 
-
-
-
-
 h=scatter3(X_(:),Y_(:),Z_(:),10*ones(size(V_ci,1),1),V_ci,'filled','MarkerFaceAlpha',.2);
 %h.FaceAlpha = .2;
 
@@ -1297,7 +1293,7 @@ scatter3(X_all(6001:7000,1),X_all(6001:7000,2),X_all(6001:7000,3),'ko');
 plot3(X_pre(:,1),X_pre(:,2),0.01*ones(size(X_pre,1),1),'w-','LineWidth',2);
 plot3(X_cur(:,1),X_cur(:,2),0.01*ones(size(X_cur,1),1),'w--','LineWidth',2);
 
-
+set(gca,'FontSize',16);
 
 
 % ---------------- Scalar-version likelihood function
